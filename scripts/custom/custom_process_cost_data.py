@@ -3,6 +3,7 @@
 
 """Custom helper functions for PyPSA-NorthAmerica workflows."""
 
+
 def filter_cost_scenario_by_technology_group(costs, config):
     """Filter costs using custom technology-group scenario overrides."""
     wished_cost_scenario = config["cost_scenario"]
