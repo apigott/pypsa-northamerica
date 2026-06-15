@@ -18,7 +18,6 @@ retrieve_from_gdrive:
 costs:
   discountrate: [0.07] # from the `fill_values` section
   output_currency: "USD"
-  default_USD_to_EUR: 0.7532 # previously USD2013_to_EUR2013; should be sufficient as current data from `technology-data` are either in EUR or USD; [EUR/USD] ECB: https://www.ecb.europa.eu/stats/exchange/eurofxref/html/eurofxref-graph-usd.en.html
   year: 2030
   technology_data_version: v0.13.2
   country_specific_data: "US" # (optional) country-specific data are currently available only for "US"
