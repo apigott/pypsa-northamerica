@@ -47,7 +47,7 @@ import logging
 import pandas as pd
 import pypsa
 from currency_converter import CurrencyConverter
-from custom.helpers import filter_cost_scenario_by_custom_technology_group
+from custom.custom_process_cost_data import filter_cost_scenario_by_technology_group
 
 currency_converter = CurrencyConverter(
     fallback_on_missing_rate=True,
@@ -348,7 +348,7 @@ def load_costs(
             # Delegate custom technology-group scenario filtering to the custom
             # helper while preserving the upstream default path when no custom
             # overrides are configured.
-            costs = filter_cost_scenario_by_custom_technology_group(costs, config)
+            costs = filter_cost_scenario_by_technology_group(costs, config)
         else:
             costs = costs[
                 (costs["scenario"].str.casefold() == wished_cost_scenario.casefold())
@@ -499,7 +499,7 @@ def prepare_costs(
             # Delegate custom technology-group scenario filtering to the custom
             # helper while preserving the upstream default path when no custom
             # overrides are configured.
-            costs = filter_cost_scenario_by_custom_technology_group(costs, config)
+            costs = filter_cost_scenario_by_technology_group(costs, config)
         else:
             costs = costs[
                 (costs["scenario"].str.casefold() == wished_cost_scenario.casefold())
