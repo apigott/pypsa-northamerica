@@ -100,9 +100,15 @@ if __name__ == "__main__":
             nodal_df = pd.concat([nodal_df, nodal_df_co])
 
     else:
-        no_years = int(snakemake.wildcards.planning_horizons) - int(
-            snakemake.params.base_year
-        )
+        planning_year = int(snakemake.wildcards.planning_horizons)
+
+        # PyPSA-NorthAmerica:
+        # Use 2023 as the demand reference year for the 2020 planning horizon, because
+        # the custom North America demand inputs are calibrated to newer reference data.
+        if planning_year == 2020:
+            planning_year = 2023
+
+        no_years = planning_year - int(snakemake.params.base_year)
 
         cagr = read_csv_nafix(snakemake.input.industry_growth_cagr, index_col=0)
 
