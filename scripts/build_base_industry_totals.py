@@ -12,6 +12,7 @@ Created on Thu Jul 14 19:01:13 2022.
 import os
 import re
 from pathlib import Path
+import logging
 
 import country_converter as coco
 import pandas as pd
@@ -103,10 +104,24 @@ if __name__ == "__main__":
     countries = snakemake.params.countries
 
     investment_year = int(snakemake.wildcards.planning_horizons)
-    demand_sc = snakemake.wildcards.demand
-    no_years = int(snakemake.wildcards.planning_horizons) - int(
-        snakemake.params.base_year
+
+    base_year = int(snakemake.params.base_year)
+
+    # PyPSA-Earth upstream:
+    # Industry demand is projected from the base year to the planning horizon,
+    # assuming that the planning horizon corresponds to the reference year of
+    # the industrial dataset.
+    # no_years = investment_year - base_year
+
+    # PyPSA-NorthAmerica:
+    # North American workflows may use a planning year as scenario label while
+    # relying on newer industrial reference data.
+    industry_reference_year = snakemake.config.get("custom_industry", {}).get(
+        "reference_year",
+        investment_year,
     )
+
+    no_years = int(industry_reference_year) - base_year
     include_other = snakemake.params.other_industries
 
     transaction = read_csv_nafix(
@@ -197,6 +212,40 @@ if __name__ == "__main__":
 
     # Create the industry totals file
     industry_totals_base = create_industry_base_totals(df_yr)
+
+    # PyPSA-NorthAmerica
+    # When steel is modelled explicitly, remove its aggregate energy demand and
+    # process emissions from the generic industry totals to avoid double counting.
+    if snakemake.config.get("custom_industry", {}).get("steel", False):
+        for country in countries:
+            industry_totals_base.loc[(country, "coal"), "iron and steel"] = 0.0
+            industry_totals_base.loc[(country, "electricity"), "iron and steel"] = 0.0
+            industry_totals_base.loc[(country, "gas"), "iron and steel"] = 0.0
+            industry_totals_base.loc[
+                (country, "process emissions"), "iron and steel"
+            ] = 0.0
+
+        logging.info(
+            "Custom steel industry enabled. Removed aggregate iron and steel "
+            "energy demand and process emissions from base industry totals."
+        )
+
+    # When cement is modelled explicitly, remove its aggregate energy demand and
+    # process emissions from the generic industry totals to avoid double counting.
+    if snakemake.config.get("custom_industry", {}).get("cement", False):
+        for country in countries:
+            industry_totals_base.loc[
+                (country, "electricity"), "non-metallic minerals"
+            ] = 0.0
+            industry_totals_base.loc[(country, "gas"), "non-metallic minerals"] = 0.0
+            industry_totals_base.loc[
+                (country, "process emissions"), "non-metallic minerals"
+            ] = 0.0
+
+        logging.info(
+            "Custom cement industry enabled. Removed aggregate non-metallic "
+            "minerals energy demand and process emissions from base industry totals."
+        )
 
     # Export the industry totals dataframe
     industry_totals_base.to_csv(snakemake.output["base_industry_totals"])
