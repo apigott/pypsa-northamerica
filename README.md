@@ -4,14 +4,11 @@ SPDX-FileCopyrightText:  PyPSA-Earth and PyPSA-Eur Authors
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# PyPSA-Earth. A Flexible Python-based Open Optimisation Model to Study Energy System Futures around the World.
+# PyPSA-Northamerica
 
-<p align="left">
-by
-<a href="https://pypsa-meets-earth.github.io">
-    <img src="https://github.com/pypsa-meets-earth/pypsa-meets-earth.github.io/raw/main/assets/img/logo.png" width="150">
-<a/>
-</p>
+PyPSA-Northamerica is a North America-focused soft fork of PyPSA-Earth developed by Open Energy Transition and contributors.
+
+PyPSA-Northamerica extends the standard PyPSA-Earth workflow with custom rules and input data for North American energy system modelling, with a current focus on the United States. It is intended as a sector-coupled model with a high spatial (100 nodes) and temporal (3 hours / 1 hour) resolution.
 
 ## Development Status: **Stable and Active**
 
@@ -26,6 +23,100 @@ by
 [![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=flat&logo=googledrive&logoColor=white)](https://drive.google.com/drive/folders/13Z8Y9zgsh5IZaDNkkRyo1wkoMgbdUxT5?usp=sharing)
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.apenergy.2023.121096-blue)](https://doi.org/10.1016/j.apenergy.2023.121096)
 
+The following countries are currently supported:
+
+🇺🇸 United States
+
+Canada and Mexico countries may be added in future releases.
+
+## Running the workflow
+
+The custom workflow is activated through:
+
+```yaml
+custom_rules: ["workflow/custom.smk"]
+```
+
+Scenario configuration files are stored in `configs/custom`. The main configuration file is `configs/custom/config.main.yaml`, while scenario-specific files are available in subfolders such as `configs/calibration/` and `configs/scenarios/`.
+
+### Running U.S. scenarios
+
+All Snakemake commands should be executed from the repository root.
+
+To run the U.S. sector-coupled model for the selected, calibrated base year (2023):
+
+```bash
+snakemake -c 1 solve_sector_networks --configfile configs/custom/calibration/config.base.yaml
+```
+
+To run a future-year Reference scenario, replace `20**` with the target year:
+
+```bash
+snakemake -c 1 solve_all_networks --configfile configs/custom/scenarios/config.20**.yaml
+```
+
+For the corresponding sector-coupled model:
+
+```bash
+snakemake -c 1 solve_sector_networks --configfile configs/custom/scenarios/config.20**.yaml
+```
+
+Future-year configuration files are currently available for 2030, 2035, and 2040.
+
+To run the sector-coupled model across multiple horizons (myopic optimization):
+
+```bash
+snakemake -call solve_sector_networks_myopic --configfile configs/custom/scenarios/config.scenario.**.yaml
+```
+
+where ** can be replaced with any value from `01` to `10` (scenario descriptions are available in the provided config files).
+
+### Custom workflow rules
+
+| Rule name                        | Description                                                                                                |
+|----------------------------------| ---------------------------------------------------------------------------------------------------------- |
+| `validate_all`                   | Performs country-level validation against EIA and Ember data.                                              |
+| `statewise_validate_all`         | Performs state-level validation against EIA data.                                                          |
+| `get_capacity_factors`           | Estimates renewable capacity factors.                                                                      |
+| `process_airport_data`           | Processes airport passenger and jet-fuel data and generates state-level aviation demand inputs.            |
+| `generate_aviation_scenario`     | Generates aviation demand files for future scenarios.                                                      |
+| `modify_aviation_demand`         | Replaces default aviation demand in `energy_totals` with custom aviation demand.                           |
+| `preprocess_demand_data`         | Preprocesses utility demand data into geospatial format.                                                   |
+| `build_demand_profiles_from_eia` | Builds custom demand profiles from EIA data and bypasses the default demand-profile rule.                  |
+| `set_saf_mandate`                | Adds e-kerosene buses and applies SAF mandate constraints when enabled.                                    |
+| `build_custom_industry_demand`   | Estimates node-level demand for selected industries such as ammonia, ethanol, cement, and steel.           |
+| `add_industry`                   | Adds selected custom industries to the sector-coupled network.                                             |
+| `prepare_growth_rate_scenarios`  | Selects the appropriate growth-rate files for the configured demand-projection scenario.                   |
+| `solve_custom_sector_network`    | Solves the customized sector-coupled model with clean electricity, RES policy, and tax-credit constraints. |
+
+### Custom retrieve rules
+
+PyPSA-Northamerica also includes retrieve rules that allow selected precomputed inputs to be used instead of rebuilding them from scratch.
+
+| Rule name                     | Description                                                               |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| `retrieve_cutouts`            | Retrieves North American cutouts.                                         |
+| `retrieve_osm_raw`            | Retrieves raw OSM data and bypasses `download_osm_data`.                  |
+| `retrieve_osm_clean`          | Retrieves cleaned OSM data and bypasses `clean_osm_data`.                 |
+| `retrieve_shapes`             | Retrieves shape files and bypasses `build_shapes`.                        |
+| `retrieve_osm_network`        | Retrieves the OSM-based network and bypasses `build_osm_network`.         |
+| `retrieve_base_network`       | Retrieves `base.nc` and bypasses `base_network`.                          |
+| `retrieve_renewable_profiles` | Retrieves renewable profiles and bypasses `build_renewable_profiles`.     |
+| `retrieve_custom_powerplants` | Copies `data/custom_powerplants.csv` into the PyPSA-Earth data directory. |
+| `retrieve_ssp2`               | Copies `data/NorthAmerica.csv` into the SSP2 data directory.              |
+| `retrieve_demand_data`        | Retrieves utility demand input data.                                      |
+
+
+# TODO: Add reference to Zenodo output repository.
+
+# PyPSA-Earth. A Flexible Python-based Open Optimisation Model to Study Energy System Futures around the World.
+
+<p align="left">
+by
+<a href="https://pypsa-meets-earth.github.io">
+    <img src="https://github.com/pypsa-meets-earth/pypsa-meets-earth.github.io/raw/main/assets/img/logo.png" width="150">
+<a/>
+</p>
 
 **PyPSA-Earth: A Global Sector-Coupled Open-Source Multi-Energy System Model**
 
@@ -715,3 +806,4 @@ The documentation is available here: [documentation](https://pypsa-earth.readthe
 	<tbody>
 </table>
 <!-- readme: collaborators,contributors,restyled-commits/- -end -->
+
