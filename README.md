@@ -10,6 +10,8 @@ PyPSA-Northamerica is a North America-focused soft fork of PyPSA-Earth developed
 
 PyPSA-Northamerica extends the standard PyPSA-Earth workflow with custom rules and input data for North American energy system modelling, with a current focus on the United States. It is intended as a sector-coupled model with a high spatial (100 nodes) and temporal (3 hours / 1 hour) resolution.
 
+![PyPSA-Northamerica_Installed_capacity_2023](doc/images/usa_installed_capacity_2023.png)
+
 ## Development Status: **Stable and Active**
 
 [![Test workflows](https://github.com/pypsa-meets-earth/pypsa-earth/actions/workflows/test.yml/badge.svg)](https://github.com/pypsa-meets-earth/pypsa-earth/actions/workflows/test.yml)
