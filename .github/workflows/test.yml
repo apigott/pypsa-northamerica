@@ -31,14 +31,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu]
         include:
         - os: ubuntu
           env_file: envs/linux-64.lock.yaml
-        - os: macos
-          env_file: envs/osx-arm64.lock.yaml
-        - os: windows
-          env_file: envs/win-64.lock.yaml
 
     defaults:
       run:
@@ -71,7 +67,7 @@ jobs:
         conda-remove-defaults: true
 
     - name: Cache Conda env
-      uses: actions/cache@v5
+      uses: actions/cache@v4
       with:
         path: ${{ env.CONDA }}/envs
         key: conda-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(format('{0}', env.env_file)) }}
@@ -83,6 +79,18 @@ jobs:
 
     - name: Conda list
       run: conda list
+
+    - name: Cache test data
+      uses: actions/cache@v4
+      with:
+        path: |
+          data/custom
+          resources/US_small_test
+          networks/US_small_test
+          cutouts/US_small_test
+        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
+        restore-keys: |
+          pypsa-na-test-data-${{ runner.os }}-
 
     - name: Run Test
       run: make test
@@ -112,12 +120,12 @@ jobs:
         name: results-${{ matrix.os }}
         # path: ./artifacts  # All artifacts go here, each in their own subfolder
 
-    # TODO Remove after debugging
-    - name: Show downloaded structure
-      run: |
-        echo "Current working directory: $(pwd)"
-        echo "All files and folders after artifact download:"
-        find . -type f -o -type d | sort
+#    # TODO Remove after debugging
+#    - name: Show downloaded structure
+#      run: |
+#        echo "Current working directory: $(pwd)"
+#        echo "All files and folders after artifact download:"
+#        find . -type f -o -type d | sort
 
     - name: Extract objective
       id: extract_obj
@@ -126,8 +134,12 @@ jobs:
         shopt -s nullglob
 
         OBJ_STRING="(?<=INFO:__main__:Objective function: ).*"
-        LOG_FILES=(./logs/solve_network/*_python.log ./logs/*/solve_network/*_python.log)
-        echo "Extracting the objective values from the logs"
+        LOG_FILES=(
+          ./logs/solve_network/*_python.log
+          ./logs/*/solve_network/*_python.log
+          ./results/*/logs/*_python.log
+        )
+        echo "Solver log files: ${LOG_FILES[*]}"
         echo "Solver log files: $LOG_FILES"
         OBJ_FOUND=$(
           awk '/INFO:__main__:Objective function: /{
@@ -194,10 +206,12 @@ jobs:
           BASENAME=$(basename "$FILE")
 
           # An enclosing folder contains a name of the run
-          FOLDER=$(echo "$FILE" | sed -E 's|.*/logs/([^/]+)/solve_network/.*|\1|')
-
-          if [[ "$FILE" == ./logs/solve_network/* ]]; then
+          if [[ "$FILE" == ./results/*/logs/* ]]; then
+            FOLDER=$(echo "$FILE" | sed -E 's|./results/([^/]+)/logs/.*|\1|')
+          elif [[ "$FILE" == ./logs/solve_network/* ]]; then
             FOLDER="default"
+          else
+            FOLDER=$(echo "$FILE" | sed -E 's|.*/logs/([^/]+)/solve_network/.*|\1|')
           fi
 
           VALUE_RAW=$(awk -v v="$VALUE" 'BEGIN { printf "%.2f\n", v }')

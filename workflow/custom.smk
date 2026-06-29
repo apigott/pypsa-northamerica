@@ -151,6 +151,27 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     ruleorder: retrieve_osm_clean > clean_osm_data
 
 
+if config.get("test_geography", {}).get("enable", False):
+
+    rule build_test_geography_shapes:
+        input:
+            boundary=config["test_geography"]["boundary"],
+        output:
+            country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
+            offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
+            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
+            africa_shape="resources/" + RDIR + "shapes/africa_shape.geojson",
+            extended_country_shape="resources/"
+            + RDIR
+            + "shapes/extended_country_shape.geojson",
+            subregion_shapes="resources/" + RDIR + "shapes/subregion_shapes.geojson",
+            subregion_offshore="resources/" + RDIR + "shapes/subregion_offshore.geojson",
+        script:
+            "../scripts/custom/build_test_geography_shapes.py"
+
+    ruleorder: build_test_geography_shapes > build_shapes
+
+
 # retrieving shapes data and bypassing build_shapes rule
 if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     "shapes", False
@@ -251,7 +272,10 @@ if config["countries"] == ["US"]:
         input:
             base_network="networks/" + RDIR + "base.nc",
             pm_config="configs/powerplantmatching_config.yaml",
-            custom_powerplants=CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            custom_powerplants=config["electricity"].get(
+                "custom_powerplants_file",
+                CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            ),
             osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
@@ -268,15 +292,6 @@ if config["countries"] == ["US"]:
             + "data/ssp2-2.6/2030/era5_2013/NorthAmerica.csv",
         script:
             "../scripts/custom/retrieve_ssp2.py"
-
-    use rule build_demand_profiles from pypsa_earth as build_demand_profiles_custom with:
-        input:
-            base_network="networks/" + RDIR + "base.nc",
-            regions="resources/" + RDIR + "bus_regions/regions_onshore.geojson",
-            load=rules.retrieve_ssp2.output.ssp2_northamerica,
-            gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-
-    ruleorder: build_demand_profiles_from_eia > build_demand_profiles_custom > build_demand_profiles
 
 
 if config["countries"] == ["US"]:
