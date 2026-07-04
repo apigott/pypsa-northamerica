@@ -29,9 +29,13 @@ jobs:
       run: |
         python -m pip install pyyaml
 
+    - name: Prepare temporary reports
+      run: |
+        mkdir -p .upstream-watch
+
     - name: Generate upstream watch report
       run: |
-        python scripts/dev/check_upstream_watchlist.py > maintenance/upstream-watch-report.md || true
+        python scripts/dev/check_upstream_watchlist.py > .upstream-watch/upstream-watch-report.md || true
 
     - name: Configure git
       run: |
@@ -44,11 +48,25 @@ jobs:
       run: |
         git merge --no-edit upstream/main
 
-    - name: Add conflict report
+    - name: Write conflict report
       if: steps.merge.outcome == 'failure'
       run: |
-        git status --short > maintenance/upstream-merge-conflicts.txt
+        git status --short > .upstream-watch/upstream-merge-conflicts.txt
         git merge --abort
+
+    - name: Upload upstream watch reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: upstream-watch-reports
+        path: .upstream-watch/
+
+    - name: Debug merge state
+      if: steps.merge.outcome == 'success'
+      run: |
+        git status --short
+        git log --graph --oneline --decorate --max-count=10
+        git diff --stat origin/main..HEAD
 
     - name: Create sync candidate PR
       if: steps.merge.outcome == 'success'
@@ -58,21 +76,11 @@ jobs:
         delete-branch: true
         title: "Sync upstream main"
         commit-message: "Merge upstream main"
-        body-path: maintenance/upstream-watch-report.md
+        body-path: .upstream-watch/upstream-watch-report.md
         labels: maintenance, upstream-sync
 
-    - name: Create conflict report PR
+    - name: Fail on upstream merge conflicts
       if: steps.merge.outcome == 'failure'
-      uses: peter-evans/create-pull-request@v7
-      with:
-        branch: chore/upstream-sync-conflicts
-        delete-branch: true
-        title: "Upstream sync has conflicts"
-        commit-message: "Report upstream sync conflicts"
-        body: |
-          Upstream merge failed and requires manual conflict resolution.
-
-          See `maintenance/upstream-merge-conflicts.txt`.
-
-          Watched-file report: `maintenance/upstream-watch-report.md`.
-        labels: maintenance, upstream-sync
+      run: |
+        echo "Upstream merge failed. Download the upstream-watch-reports artifact."
+        exit 1
