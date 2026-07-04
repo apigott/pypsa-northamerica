@@ -35,7 +35,6 @@ jobs:
 
     - name: Generate upstream watch report
       run: |
-        mkdir -p .upstream-watch
         python scripts/dev/check_upstream_watchlist.py > .upstream-watch/upstream-watch-report.md || true
 
     - name: Configure git
@@ -52,7 +51,6 @@ jobs:
     - name: Write conflict report
       if: steps.merge.outcome == 'failure'
       run: |
-        mkdir -p .upstream-watch
         git status --short > .upstream-watch/upstream-merge-conflicts.txt
         git merge --abort
 
@@ -61,8 +59,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: upstream-watch-reports
-        path: .upstream-watch/**
-        if-no-files-found: warn
+        path: .upstream-watch/
 
     - name: Debug merge state
       if: steps.merge.outcome == 'success'
