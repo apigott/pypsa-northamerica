@@ -42,6 +42,13 @@ costs:
     OCGT: 45
 
 cluster_options:
+  alternative_clustering: true
+  # Options:
+  # - gadm: administrative regions (default upstream behaviour)
+  # - balancing_areas: EIA balancing authority regions
+  # - eia_market_module: EIA Electricity Market Module (EMM) regions
+  # - needs_grid_regions: aggregated NEEDS transmission planning regions
+  alternative_clustering_shape: needs_grid_regions
   aggregation_strategies:
     lines:
       tag_type: first
