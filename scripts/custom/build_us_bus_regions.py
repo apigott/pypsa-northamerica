@@ -49,6 +49,17 @@ Creates the geographical regions associated with each network bus. Depending on
 the selected clustering mode, onshore regions are either computed using Voronoi
 tessellation or assigned from predefined region polygons.
 """
+import sys
+from pathlib import Path
+
+if "snakemake" in globals():
+    REPO_ROOT = Path(snakemake.scriptdir).resolve().parents[1]
+else:
+    REPO_ROOT = Path(__file__).resolve().parents[1]
+
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "custom"))
+sys.path.insert(1, str(REPO_ROOT / "scripts"))
+
 import os
 import warnings
 

@@ -125,6 +125,16 @@ Exemplary unsolved network clustered to 37 nodes:
     :width: 40  %
     :align: center
 """
+import sys
+from pathlib import Path
+
+if "snakemake" in globals():
+    REPO_ROOT = Path(snakemake.scriptdir).resolve().parents[1]
+else:
+    REPO_ROOT = Path(__file__).resolve().parents[1]
+
+sys.path.insert(0, str(REPO_ROOT / "scripts" / "custom"))
+sys.path.insert(1, str(REPO_ROOT / "scripts"))
 
 import logging
 import os
