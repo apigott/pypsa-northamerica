@@ -275,7 +275,6 @@ if config["countries"] == ["US"]:
             crs=config["crs"],
             countries=config["countries"],
         input:
-            **retrieve_subregion("cluster_network"),
             country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
             base_network="networks/" + RDIR + "base.nc",
@@ -323,7 +322,6 @@ if config["countries"] == ["US"]:
             focus_weights=config.get("focus_weights", None),
             custom_busmap=config["enable"].get("custom_busmap", False),
         input:
-            **retrieve_subregion("cluster_network"),
             network="networks/" + RDIR + "elec_s{simpl}.nc",
             country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             regions_onshore="resources/"
