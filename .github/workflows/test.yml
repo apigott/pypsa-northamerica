@@ -101,7 +101,7 @@ jobs:
           data/custom
           resources/US_small_test
           networks/US_small_test
-          cutouts/US_small_test
+          cutouts/cutout-2013-era5.nc
         key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
         restore-keys: |
           pypsa-na-test-data-${{ runner.os }}-
