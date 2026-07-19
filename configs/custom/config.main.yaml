@@ -10,10 +10,10 @@ validation:
 scenario:
   simpl: [""]
   ll: ['v1']
-  opts: [CCL-3H]
+  opts: [CCL-3h]
   planning_horizons: [2030, 2035, 2040]
   clusters: [100]
-  sopts: ["3H"]
+  sopts: ["3h"]
 
 foresight: myopic
 
