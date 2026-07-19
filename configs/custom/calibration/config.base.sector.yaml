@@ -35,21 +35,17 @@ policies:
   country: [] # "CES"
 
 electricity:
-  co2limit: 4.63e+9 #for calibration purposes
-  co2base: 226.86e+6 #base_from_2020 Locations of the 250 MMmt of CO2 emissions from the WECC 2021.
-
   extendable_carriers:
     Generator: []
-    Store: [battery, H2]
+    Store: []
 
-  powerplants_filter: DateIn <= 2023
-  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
+  powerplants_filter: (DateOut >= 2023 or DateOut != DateOut) and (DateIn <= 2023 or DateIn != DateIn)
+  custom_powerplants: replace # "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
 
-  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
-  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
-
-  estimate_renewable_capacities:
-    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
+co2:
+  limit: 4.633e+9     # base * 1.1 for calibration purposes
+  base: 4.413e+9      # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
+  emission_price: 0. # [currency/tCO2]; active via Ep wildcard
 
 renewable:
   hydro:
@@ -99,22 +95,3 @@ sector:
     AB_2020: 0.006
   shipping_hydrogen_share:
     AB_2020: 0
-
-solving:
-  options:
-    load_shedding: false
-  solver:
-    name: gurobi
-    options: gurobi-default
-  solver_options:
-    gurobi-default:
-      threads: 8
-      method: 2 # barrier
-      crossover: 0
-      BarConvTol: 1.e-4
-      BarHomogeneous: 1
-
-plotting:
-  tech_colors:
-    PHS: #036356
-    wind: #6895dd
