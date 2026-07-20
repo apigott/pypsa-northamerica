@@ -12,8 +12,8 @@ enable:
   custom_busmap: true
 
 run:
-  name: "US_2023" # use this to keep track of runs with different settings
-  sector_name: "US_2023"
+  name: "US_2023_sector" # use this to keep track of runs with different settings
+  sector_name: "US_2023_sector"
 
 scenario:
   simpl: ['']
