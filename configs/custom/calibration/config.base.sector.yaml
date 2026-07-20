@@ -46,6 +46,9 @@ renewable:
 
 costs:
   year: 2020
+  lifetime:
+    CCGT: 45
+    OCGT: 45
   efficiency:
     coal: 0.3195
     oil: 0.3005
