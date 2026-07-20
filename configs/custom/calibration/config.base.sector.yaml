@@ -21,7 +21,7 @@ scenario:
   clusters: [100]
   opts: [Co2L-3h]
   planning_horizons:
-  - 2020
+  - 2023
   sopts:
   - "3h"
 
@@ -81,8 +81,8 @@ sector:
   SMR CC: false
 
   land_transport_fuel_cell_share:
-    AB_2020: 0
+    AB_2023: 0
   land_transport_electric_share:
-    AB_2020: 0.006
+    AB_2023: 0.006
   shipping_hydrogen_share:
-    AB_2020: 0
+    AB_2023: 0
