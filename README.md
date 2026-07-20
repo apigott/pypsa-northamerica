@@ -115,7 +115,7 @@ Beyond the custom workflow rules described above, PyPSA-NorthAmerica also introd
 
 Current examples include:
 
-- **Representative US transmission line types**, derived from the Texas A&M ACTIVSg82k synthetic transmission network. Rather than relying on the default European line-type library provided by PyPSA-Earth, representative electrical parameters will be computed for each US transmission voltage level and automatically used during base network construction.
+- **Representative US transmission line types**, derived from the Texas A&M ACTIVSg82k synthetic transmission network. Rather than relying on the default European line-type library provided by PyPSA-Earth, - **Representative US transmission line types**, derived from the Texas A&M ACTIVSg82k synthetic transmission network. Rather than relying on the default European line-type library provided by PyPSA-Earth, representative electrical parameters are provided for each US transmission voltage level and automatically used during base network construction.
 
 ### Computational reproducibility
 
