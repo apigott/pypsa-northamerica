@@ -250,8 +250,6 @@ custom_databundles:
       zenodo: https://zenodo.org/api/records/21256875/files/demand_data.zip/content
 
 solving:
-  options:
-    load_shedding: false
   solver:
     name: gurobi
     options: gurobi-default
