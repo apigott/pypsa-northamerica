@@ -27,16 +27,16 @@ electricity:
   powerplants_filter: (DateOut >= 2023 or DateOut != DateOut) and (DateIn <= 2023 or DateIn != DateIn)
   custom_powerplants: replace # "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
 
-co2:
-  limit: 4.633e+9     # base * 1.1 for calibration purposes
-  base: 4.413e+9      # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
-  emission_price: 0. # [currency/tCO2]; active via Ep wildcard
-
 renewable:
   hydro:
     normalization:
       method: eia
     hydro_capital_cost: true
+
+co2:
+  limit: 4.633e+9     # base * 1.1 for calibration purposes
+  base: 4.413e+9      # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
+  emission_price: 0. # [currency/tCO2]; active via Ep wildcard
 
 costs:
   year: 2020
