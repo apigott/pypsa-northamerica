@@ -24,9 +24,12 @@ enable:
   custom_busmap: false
   retrieve_databundle_sector: true
 
+  retrieve_cutout: false
+  build_cutout: false
+
 # retrieving precomputed files from Google Drive and bypassing re-execution
 retrieve_precomputed:
-  cutouts: false # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
+  cutouts: true # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
   osm_raw: true # if true, bypasses download_osm_data rule
   osm_clean: true # if true, bypasses clean_osm_data rule
   shapes: true # if true, bypasses build_shapes rule
@@ -202,7 +205,7 @@ custom_databundles:
     category: cutouts
     destination: "cutouts"
     urls:
-      gdrive: https://drive.google.com/file/d/1Ao_kuHssRaP1qLV-IEG91Hu7E04-nBZg/view?usp=drive_link
+      gdrive: https://drive.google.com/file/d/1p5l10dQpszJvIX135NK2n8thqnqKEdUS/view?usp=drive_link
     output: [cutouts/cutout-2013-era5.nc]
     disable_by_opt:
       build_cutout: [all]

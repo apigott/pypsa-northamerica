@@ -4,26 +4,6 @@
 
 countries: ["US"]
 
-enable:
-  retrieve_databundle: true  #  Recommended 'true', for the first run. Otherwise data might be missing.
-  retrieve_databundle_sector: true
-  retrieve_cost_data: true  # true: retrieves cost data from technology data and saves in resources/costs.csv, false: uses cost data in data/costs.csv
-  download_osm_data: true  # If 'true', OpenStreetMap data will be downloaded for the above given countries
-  custom_busmap: false
-
-  retrieve_cutout: false
-  build_cutout: true
-
-# retrieving precomputed files from Google Drive and bypassing re-execution
-retrieve_precomputed:
-  cutouts: false # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
-  osm_raw: false # if true, bypasses download_osm_data rule
-  osm_clean: false # if true, bypasses clean_osm_data rule
-  shapes: false # if true, bypasses build_shapes rule
-  osm_network: false # if true, bypasses build_osm_network rule
-  base_network: false # if true, bypasses base_network rule
-  renewable_profiles: false # if true, bypasses build_renewable_profiles rule
-
 foresight: perfect
 
 run:
