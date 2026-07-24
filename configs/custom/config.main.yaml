@@ -21,7 +21,7 @@ enable:
   download_osm_data: true
   retrieve_cost_data: true
   retrieve_databundle: false
-  custom_busmap: true
+  custom_busmap: false
   retrieve_databundle_sector: true
 
 # retrieving precomputed files from Google Drive and bypassing re-execution
