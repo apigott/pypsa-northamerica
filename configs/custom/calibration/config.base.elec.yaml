@@ -4,7 +4,7 @@
 
 countries: ["US"]
 
-foresight: perfect
+foresight: overnight
 
 run:
   name: "US_2023_elec" # use this to keep track of runs with different settings

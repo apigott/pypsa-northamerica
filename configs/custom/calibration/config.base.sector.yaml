@@ -4,7 +4,7 @@
 
 countries: ["US"]
 
-foresight: perfect
+foresight: overnight
 
 run:
   sector_name: "US_2023_sector"
