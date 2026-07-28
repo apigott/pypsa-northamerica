@@ -89,7 +89,7 @@ jobs:
 
     - name: Update environment
       if: steps.cache-env.outputs.cache-hit != 'true'
-      run: conda env update -n pypsa-earth -f ${{ env.env_file }}
+      run: conda env update -n pypsa-earth -f ${{ matrix.env_file }}
 
     - name: Conda list
       run: conda list
@@ -279,7 +279,7 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
-    - uses: prefix-dev/setup-pixi@v0.10.0
+    - uses: prefix-dev/setup-pixi@v0.9.6
       with:
         pixi-version: latest
         environments: pypsa-earth
