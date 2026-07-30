@@ -252,7 +252,7 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     rule retrieve_renewable_profiles:
         params:
             destination="resources/" + RDIR,
-            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            alternative_clustering=config["clustering"]["alternative_clustering"],
         output:
             expand(
                 "{PYPSA_EARTH_DIR}resources/{RDIR}{file}",
@@ -450,7 +450,7 @@ if config["custom_industry"]["enable"]:
             add_steel=config["custom_industry"]["steel"],
             add_cement=config["custom_industry"]["cement"],
             gadm_layer_id=config["build_shape_options"]["gadm_layer_id"],
-            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            alternative_clustering=config["clustering"]["alternative_clustering"],
             industry_database=config["custom_data"]["industry_database"],
         input:
             uscity_map=CUSTOM_USA_DATA_DIR + "industry_data/uscities.csv",
