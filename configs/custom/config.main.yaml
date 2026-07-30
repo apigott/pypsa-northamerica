@@ -138,7 +138,10 @@ electricity:
   renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
 
   # ----------------- Existing powerplants -------------------
-  custom_powerplants: "replace" # false: use only powerplantmatching data; merge: combine powerplantmatching and custom data; replace: use only custom data
+  custom_powerplants:
+    filepaths:
+    - data/custom/usa/custom_powerplants_US.csv
+    method: replace
 
   estimate_renewable_capacities:
     stats: false # false: greenfield expansion; "irena": use IRENA statistics to add expansion limits
