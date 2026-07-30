@@ -272,10 +272,7 @@ if config["countries"] == ["US"]:
         input:
             base_network="networks/" + RDIR + "base.nc",
             pm_config="configs/powerplantmatching_config.yaml",
-            custom_powerplants=config["electricity"].get(
-                "custom_powerplants_file",
-                CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
-            ),
+            custom_powerplants=config["electricity"]["custom_powerplants"]["filepaths"],
             osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
 
