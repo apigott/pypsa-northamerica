@@ -312,7 +312,7 @@ solving:
 
   # ------------------- Optimization options -------------------
   options:
-    load_shedding: false
+    load_shedding: 100
 
   # ------------------- Solver presets -------------------
   solver_options:
