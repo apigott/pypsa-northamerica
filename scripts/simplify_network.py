@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText:  PyPSA-Earth and PyPSA-Eur Authors
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
-
-# -*- coding: utf-8 -*-
 """
 Lifts the electrical transmission network to a single configured voltage layer,
 removes dead ends of the network, and reduces multi-hop HVDC connections to a
@@ -71,7 +69,7 @@ Description
 
 The rule :mod:`simplify_network` does up to four things:
 
-1. Create an equivalent transmission network in which all voltage levels are mapped to the configured base-voltage layer by ``simplify_network_to_base_voltage(...)``. The closest country-specific line type is used when available; otherwise, the default mapping is applied.
+1. Create an equivalent transmission network in which voltage levels are mapped to the configured country-specific base-voltage layers by ``simplify_network_to_base_voltage(...)``. Countries without an explicit override use the default base voltage. The corresponding country-specific line type is used when available; otherwise, the default line-type mapping is applied.
 
 2. DC only sub-networks that are connected at only two buses to the AC network are reduced to a single representative link in the function ``simplify_links(...)``. The components attached to buses in between are moved to the nearest endpoint. The grid connection cost of offshore wind generators are added to the capital costs of the generator.
 
@@ -111,47 +109,111 @@ sys.settrace
 logger = create_logger(__name__)
 
 
-def simplify_network_to_base_voltage(n, linetypes, base_voltage):
+def simplify_network_to_base_voltage(
+    n,
+    linetypes,
+    base_voltage,
+):
     """
-    Map all lines to a common voltage while preserving country-specific types.
+    Map all lines to configured base voltages and country-specific line types.
 
-    Each line is assigned the closest available line type for the country of
-    its first bus. The default mapping is used when no country-specific mapping
-    is available. Transmission capacity is preserved by recalculating the
-    number of parallel bundles after updating the voltage and line type.
-    Transformers are removed and connected components are moved from their
-    starting bus to their ending bus.
+    Each bus is assigned the base voltage configured for its country.
+    Countries without an explicit override use the default value.
+    Transmission capacity is preserved by recalculating the number of
+    parallel bundles after updating the voltage and line type.
 
     Parameters
     ----------
     n : pypsa.Network
         Network to simplify.
     linetypes : dict
-        Line-type mappings by country and nominal voltage.
-    base_voltage : float
-        Common nominal voltage assigned to buses and lines.
+        Mapping of countries and voltage levels to line types.
+    base_voltage : dict
+        Default base voltage and optional country-specific overrides.
 
     Returns
     -------
-    tuple
-        Simplified network and transformer bus mapping.
+    pypsa.Network
+        Simplified network.
+    pandas.Series
+        Mapping of removed transformers.
     """
+    if not isinstance(base_voltage, dict) or "default" not in base_voltage:
+        raise ValueError(
+            "'electricity.base_voltage' must contain a 'default' value "
+            "and may contain country-specific overrides."
+        )
 
-    logger.info(f"Mapping all network lines onto a single {int(base_voltage)}kV layer")
-    n.buses["v_nom"] = base_voltage
+    default_base_voltage = base_voltage["default"]
 
-    line_countries = n.lines["bus0"].map(n.buses["country"])
-    n.lines["type"] = line_countries.map(
-        lambda country: get_linetype_by_voltage_and_country(
-            base_voltage,
+    # Continue with the existing implementation.
+    bus_base_voltages = n.buses["country"].map(
+        lambda country: base_voltage.get(
             country,
-            linetypes,
+            default_base_voltage,
         )
     )
 
-    n.lines["v_nom"] = base_voltage
+    logger.info(
+        "Mapping network lines onto country-specific base-voltage layers: %s",
+        {
+            country: base_voltage.get(country, default_base_voltage)
+            for country in n.buses["country"].dropna().unique()
+        },
+    )
+
+    n.buses["v_nom"] = bus_base_voltages
+
+    line_countries = n.lines["bus0"].map(n.buses["country"])
+    line_base_voltages = line_countries.map(
+        lambda country: base_voltage.get(
+            country,
+            default_base_voltage,
+        )
+    )
+
+    line_bus1_base_voltages = n.lines["bus1"].map(bus_base_voltages)
+
+    mismatched_ac_lines = (n.lines["carrier"] != "DC") & (
+        line_base_voltages != line_bus1_base_voltages
+    )
+
+    if mismatched_ac_lines.any():
+        mismatched_lines = n.lines.loc[
+            mismatched_ac_lines,
+            ["bus0", "bus1"],
+        ].copy()
+
+        mismatched_lines["bus0_v_nom"] = line_base_voltages.loc[mismatched_ac_lines]
+        mismatched_lines["bus1_v_nom"] = line_bus1_base_voltages.loc[
+            mismatched_ac_lines
+        ]
+
+        raise ValueError(
+            "Country-specific base voltages assign different nominal "
+            "voltages to the endpoints of the following AC lines:\n"
+            f"{mismatched_lines.to_string()}"
+        )
+
+    n.lines["type"] = pd.Series(
+        [
+            get_linetype_by_voltage_and_country(
+                voltage,
+                country,
+                linetypes,
+            )
+            for voltage, country in zip(
+                line_base_voltages,
+                line_countries,
+            )
+        ],
+        index=n.lines.index,
+    )
+
+    n.lines["v_nom"] = line_base_voltages
     n.lines["i_nom"] = n.lines["type"].map(n.line_types["i_nom"])
-    # Note: s_nom is set in base_network
+
+    # Note: s_nom is set in base_network.
     n.lines["num_parallel"] = n.lines.eval("s_nom / (sqrt(3) * v_nom * i_nom)")
 
     # Re-define s_nom for DC lines

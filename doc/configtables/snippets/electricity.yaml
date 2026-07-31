@@ -39,17 +39,8 @@ electricity:
       PV: [solar]
 
   # ----------------- Grid topology -------------------
-  base_voltage: 380.
-  voltages: [132., 220., 300., 380., 500., 750.]
-  hvdc_as_lines: false # false: HVDC as Link; true: HVDC as Line
-
-  # ----------------- Constraints & reserve -------------------
-  agg_p_nom_limits: # enables to set country-wise maximum and minimum generation capacities for generators (e.g. renewables, nuclear, and geothermal)
-    file: data/agg_p_nom_minmax.csv # path to csv file containing country-wise generation capacity limits
-    include_existing: false # false: only new built capacities are constrained; true: existing capacities are accounted in the constraints
-
-  operational_reserve: # like https://genxproject.github.io/GenX.jl/stable/Model_Reference/core/#Operational-Reserves
-    activate: false
-    epsilon_load: 0.02 # share of total load
-    epsilon_vres: 0.02 # share of total renewable supply
-    contingency: 0 # fixed capacity in MW
+  electricity:
+    base_voltage:
+      default: 380.
+      AU: 330.
+      US: 345.
