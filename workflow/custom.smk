@@ -236,7 +236,6 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
             + "base_network/all_transformers_build_network.csv",
             country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
             offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-            line_types=config["lines"].get("custom_line_types", []),
         output:
             PYPSA_EARTH_DIR + "networks/" + RDIR + "base.nc",
         script:
@@ -253,7 +252,7 @@ if config["countries"] == ["US"] and config["retrieve_precomputed"].get(
     rule retrieve_renewable_profiles:
         params:
             destination="resources/" + RDIR,
-            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            alternative_clustering=config["clustering"]["alternative_clustering"],
         output:
             expand(
                 "{PYPSA_EARTH_DIR}resources/{RDIR}{file}",
@@ -273,9 +272,10 @@ if config["countries"] == ["US"]:
         input:
             base_network="networks/" + RDIR + "base.nc",
             pm_config="configs/powerplantmatching_config.yaml",
-            custom_powerplants=config["electricity"].get(
-                "custom_powerplants_file",
-                CUSTOM_USA_DATA_DIR + "custom_powerplants.csv",
+            custom_powerplants=branch(
+                config["electricity"]["custom_powerplants"]["method"] is not False,
+                config["electricity"]["custom_powerplants"]["filepaths"],
+                [],
             ),
             osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
             gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
@@ -451,7 +451,7 @@ if config["custom_industry"]["enable"]:
             add_steel=config["custom_industry"]["steel"],
             add_cement=config["custom_industry"]["cement"],
             gadm_layer_id=config["build_shape_options"]["gadm_layer_id"],
-            alternative_clustering=config["cluster_options"]["alternative_clustering"],
+            alternative_clustering=config["clustering"]["alternative_clustering"],
             industry_database=config["custom_data"]["industry_database"],
         input:
             uscity_map=CUSTOM_USA_DATA_DIR + "industry_data/uscities.csv",
