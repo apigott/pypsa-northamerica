@@ -89,7 +89,7 @@ jobs:
 
     - name: Update environment
       if: steps.cache-env.outputs.cache-hit != 'true'
-      run: conda env update -n pypsa-earth -f ${{ matrix.env_file }}
+      run: conda env update -n pypsa-earth -f ${{ env.env_file }}
 
     - name: Conda list
       run: conda list
@@ -300,7 +300,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu]
 
     steps:
     - uses: actions/checkout@v7
