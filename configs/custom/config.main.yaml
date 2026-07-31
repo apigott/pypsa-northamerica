@@ -2,185 +2,46 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-countries: ["US"]
+# =================== META ===================
+custom_rules: ["workflow/custom.smk"] # paths to additional .smk files included in the Snakefile
+
+
+# =================== STUDY SETUP ===================
+countries: ["US"] # ISO codes, continent, or custom region
 
 validation:
   planning_horizon: [2020]
 
+foresight: myopic # "myopic" or "overnight"
+
 scenario:
   simpl: [""]
-  ll: ['v1']
-  opts: [CCL-3H]
-  planning_horizons: [2030, 2035, 2040]
+  ll: ["v1"]
   clusters: [100]
+  opts: [CCL-3H] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
+  planning_horizons: [2030, 2035, 2040] # investment years for myopic; costs year for overnight
   sopts: ["3H"]
 
-foresight: myopic
 
+# =================== DATA RETRIEVAL ===================
 enable:
-  download_osm_data: true
-  retrieve_cost_data: true
-  retrieve_databundle: false
-  custom_busmap: true
+  # ----------------- Retrieving data -----------------
+  retrieve_databundle: false # recommended for first run
+  download_osm_data: true # download OpenStreetMap data for the countries specified above
+  retrieve_cost_data: true # false: use existing data/costs.csv
   retrieve_databundle_sector: true
+  # ----------------- Advanced -----------------
+  custom_busmap: true # optional override for cluster_network busmap
 
-# retrieving precomputed files from Google Drive and bypassing re-execution
+# Retrieve precomputed files and bypass their local construction.
 retrieve_precomputed:
-  cutouts: false # if true, US cutouts are retrieved from Google Drive, else it is retrieved using retrieve_databundle_light if enable is true
-  osm_raw: true # if true, bypasses download_osm_data rule
-  osm_clean: true # if true, bypasses clean_osm_data rule
-  shapes: true # if true, bypasses build_shapes rule
-  osm_network: true # if true, bypasses build_osm_network rule
-  base_network: true # if true, bypasses base_network rule
-  renewable_profiles: true # if true, bypasses build_renewable_profiles rule
-
-custom_rules: ["workflow/custom.smk"]
-
-costs:
-  discountrate: [0.07] # from the `fill_values` section
-  output_currency: "USD"
-  year: 2030
-  technology_data_version: v0.14.0
-  country_specific_data: "US" # (optional) country-specific data are currently available only for "US"
-  cost_scenario: "moderate" # only used if `country_specific_data: "US"`; can be "moderate", "advanced" or "conservative"
-  cost_scenario_by_technology_group: # (optional): overwrites for some specific technology groups
-    electricity: "moderate"
-    H2_electrolysis: "moderate"
-    dac: "moderate"
-  financial_case: "market" # only used if `country_specific_data: "US"`; can be "market" or "r&d"
-  discount rate:
-    direct air capture: 0.10
-    Fischer-Tropsch: 0.10
-    Alkaline electrolyzer large size: 0.10
-    Alkaline electrolyzer medium size: 0.10
-    Alkaline electrolyzer small size: 0.10
-    PEM electrolyzer small size: 0.10
-    SOEC: 0.10
-  lifetime:
-    CCGT: 45
-    OCGT: 45
-
-electricity:
-  agg_p_nom_limits:
-    file: data/custom/usa/agg_p_nom_minmax.csv
-  extendable_carriers:
-    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
-    Store: [battery, H2]
-
-  custom_powerplants: "replace" #  "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-
-  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
-  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
-
-  estimate_renewable_capacities:
-    stats: false  # False, = greenfield expansion, 'irena' uses IRENA stats to add expansion limits
-
-  voltages: [69., 100., 115., 138., 161., 230., 345., 500., 765.]
-
-lines:
-  custom_line_types: data/custom/usa/transmission_network/line_types.csv
-  ac_types:
-    69.: US_69kV
-    100.: US_100kV
-    115.: US_115kV
-    138.: US_138kV
-    161.: US_161kV
-    230.: US_230kV
-    345.: US_345kV
-    500.: US_500kV
-    765.: US_765kV
-
-renewable:
-  hydro:
-    normalization:
-      method: eia
-    hydro_capital_cost: true
-
-cluster_options:
-  alternative_clustering: false # "False" use Voronoi shapes, "True" use GADM shapes (only Voronoi clustering is currently supported)
-  simplify_network:
-    p_threshold_drop_isolated: 0.0
-  aggregation_strategies:
-    lines:
-      tag_type: first
-      tag_frequency: first
-      underground: any
-      under_construction: any
-
-export:
-  endogenous: false # If true, the export demand is endogenously determined by the model
-  h2export: [0] # Yearly export demand in TWh. Only considered, if ["export"]["endogenous"] is set to false
-
-# defining the aviation demand scenario
-aviation_demand_scenario:
-  country: US
-  scenario: central # low, central or high
-
-custom_data:
-  airports: true
-
-saf_mandate:
-  ekerosene_split: true # separate e-kerosene as separate bus
-  non_spatial_ekerosene: true # connects all e-kerosene buses with a single E-kerosene-main bus to model 0 cost of transport and store
-  enable_mandate: false # enable SAF mandate
-  saf_scenario: EU
-
-demand_distribution:
-  enable: true
-  base_demand_year: 2023
-  holes_area_threshold: 100
-  nprocesses: 4
-  plotting: true
-  set_distribution_fees: true # true, false
-
-demand_data:
-  base_year: 2021
-
-demand_projection:
-  planning_horizon: 2023
-  scenario: "Medium"
-  data_centers_load: true
-
-existing_capacities:
-  threshold_capacity: 5  # MW, below this threshold capacities are not added in separate horizon
-
-state_policy: "on" # "off", "on" manage application of renewable/clean energy policies at State- or country-level
-
-policy_config:
-  hydrogen:
-    temporal_matching: "hourly" # either "hourly", "monthly", "yearly", "no_temporal_matching"
-    additionality: true
-    temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
-    h2_production_constraint: false
-
-sector:
-  co2_sequestration_potential: 250 # MtCO2/a sequestration potential for US
-  co2_sequestration_cost: 8 # USD/tCO2 for sequestration of CO2
-  demand_projection_reference_year: 2023
-  ammonia:
-    enable: false
-
-  solar_rooftop: # adds distribution side customer rooftop PV (only work if electricity_distribution_grid: true)
-    m2_per_person: 12
-
-custom_industry:
-  enable: true
-  ethanol: true
-  ammonia: true
-  steel: true
-  cement: true
-  CCS_retrofit: [ethanol, ammonia, steel, cement] # [ethanol, ammonia, steel, cement]
-  production_flexibility: []
-  H2_DRI: false
-  biogenic_co2: false # define output of ethanol from starch CC as biogenic CO2 to be used in Fischer-Tropsch
-  grid_H2: true # mark output of electrolysis as grid H2 (which can be used in Fischer-Tropsch)
-  other_electricity: true # add other electricity as a consumption
-  dac_inputs:
-    heat: false
-    electricity: 1.4 # in MWh per ton CO2
-  buffer_co2_stored: true # switch output to buffer co2 stored
-  co2_storage_tanks: true # add CO2 storage tanks
-
+  cutouts: false # true: retrieve US cutouts; false: use retrieve_databundle_light when enabled
+  osm_raw: true # true: bypass download_osm_data
+  osm_clean: true # true: bypass clean_osm_data
+  shapes: true # true: bypass build_shapes
+  osm_network: true # true: bypass build_osm_network
+  base_network: true # true: bypass base_network
+  renewable_profiles: true # true: bypass build_renewable_profiles
 
 custom_databundles:
   bundle_cutouts_USA:
@@ -249,12 +110,191 @@ custom_databundles:
     urls:
       zenodo: https://zenodo.org/api/records/21256875/files/demand_data.zip/content
 
+# =================== GEOGRAPHY & SHAPES ===================
+
+# ------------------- Clustering -------------------
+clustering:
+  alternative_clustering: false # false: use Voronoi shapes; true: use GADM shapes (only Voronoi clustering is currently supported)
+  simplify_network:
+    p_threshold_drop_isolated: 0.0
+  aggregation_strategies:
+    lines:
+      tag_type: first
+      tag_frequency: first
+      underground: any
+      under_construction: any
+
+
+# =================== NETWORK & RESOURCES ===================
+
+# ------------------- Electricity grid -------------------
+electricity:
+  # ----------------- Electricity generation -------------------
+  extendable_carriers:
+    Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
+    Store: [battery, H2]
+
+  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
+  renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
+
+  # ----------------- Existing powerplants -------------------
+  custom_powerplants:
+    filepaths:
+    - data/custom/usa/custom_powerplants_US.csv
+    method: replace
+
+  estimate_renewable_capacities:
+    stats: false # false: greenfield expansion; "irena": use IRENA statistics to add expansion limits
+
+  # ----------------- Grid topology -------------------
+  voltages: [69., 100., 115., 138., 161., 230., 345., 500., 765.]
+
+  # ----------------- Constraints & reserve -------------------
+  agg_p_nom_limits:
+    file: data/custom/usa/agg_p_nom_minmax.csv
+
+lines:
+  custom_line_types: data/custom/usa/transmission_network/line_types.csv
+  ac_types:
+    69.: US_69kV
+    100.: US_100kV
+    115.: US_115kV
+    138.: US_138kV
+    161.: US_161kV
+    230.: US_230kV
+    345.: US_345kV
+    500.: US_500kV
+    765.: US_765kV
+
+# ------------------- Weather & renewables -------------------
+renewable:
+  hydro:
+    normalization:
+      method: eia
+    hydro_capital_cost: true
+
+# ------------------- Costs & emissions -------------------
+costs:
+  year: 2030 # cost file selection; reference year for costs is always 2020
+  technology_data_version: v0.14.0
+  output_currency: "USD"
+  discountrate: [0.07] # from the `fill_values` section
+  country_specific_data: "US" # optional; country-specific data are currently available only for "US"
+  cost_scenario: "moderate" # used only with country_specific_data: "US"; "moderate", "advanced", or "conservative"
+  cost_scenario_by_technology_group: # optional overrides for specific technology groups
+    electricity: "moderate"
+    H2_electrolysis: "moderate"
+    dac: "moderate"
+  financial_case: "market" # used only with country_specific_data: "US"; "market" or "r&d"
+  discount rate:
+    direct air capture: 0.10
+    Fischer-Tropsch: 0.10
+    Alkaline electrolyzer large size: 0.10
+    Alkaline electrolyzer medium size: 0.10
+    Alkaline electrolyzer small size: 0.10
+    PEM electrolyzer small size: 0.10
+    SOEC: 0.10
+  lifetime:
+    CCGT: 45
+    OCGT: 45
+
+
+# =================== SECTOR OPTIONS ===================
+
+# ------------------- Hydrogen policy & export -------------------
+policy_config:
+  hydrogen:
+    temporal_matching: "hourly" # "hourly", "monthly", "yearly", or "no_temporal_matching"
+    additionality: true
+    temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
+    h2_production_constraint: false
+
+export:
+  endogenous: false # true: export demand is determined endogenously
+  h2export: [0] # yearly export demand in TWh; used only when export.endogenous is false
+
+# ------------------- Sector-coupled demand data -------------------
+demand_data:
+  base_year: 2021
+
+demand_projection:
+  planning_horizon: 2023
+  scenario: "Medium"
+  data_centers_load: true
+
+demand_distribution:
+  enable: true
+  base_demand_year: 2023
+  holes_area_threshold: 100
+  nprocesses: 4
+  plotting: true
+  set_distribution_fees: true
+
+# ------------------- Custom data -------------------
+custom_data:
+  airports: true
+
+# ------------------- Brownfield capacities -------------------
+existing_capacities:
+  threshold_capacity: 5 # MW; capacities below this threshold are not added in a separate horizon
+
+state_policy: "on" # "off" or "on": apply renewable and clean-energy policies at state or country level
+
+# ------------------- Shipping & aviation -------------------
+aviation_demand_scenario:
+  country: US
+  scenario: central # low, central, or high
+
+saf_mandate:
+  ekerosene_split: true # model e-kerosene on a separate bus
+  non_spatial_ekerosene: true # connect all e-kerosene buses to a single zero-cost transport and storage bus
+  enable_mandate: false
+  saf_scenario: EU
+
+# ------------------- Enabled sectors & fuel infrastructure -------------------
+sector:
+  co2_sequestration_potential: 250 # MtCO2/a sequestration potential for the US
+  co2_sequestration_cost: 8 # USD/tCO2
+  demand_projection_reference_year: 2023
+  ammonia:
+    enable: false
+
+  # ------------------- Electricity distribution grid -------------------
+  solar_rooftop: # adds customer-side rooftop PV; requires electricity_distribution_grid: true
+    m2_per_person: 12
+
+# ------------------- Custom industry -------------------
+custom_industry:
+  enable: true
+  ethanol: true
+  ammonia: true
+  steel: true
+  cement: true
+  CCS_retrofit: [ethanol, ammonia, steel, cement]
+  production_flexibility: []
+  H2_DRI: false
+  biogenic_co2: false # expose ethanol fermentation CO2 as biogenic CO2 for Fischer-Tropsch
+  grid_H2: true # mark electrolysis output as grid H2 for use in Fischer-Tropsch
+  other_electricity: true
+  dac_inputs:
+    heat: false
+    electricity: 1.4 # MWh per tCO2
+  buffer_co2_stored: true
+  co2_storage_tanks: true
+
+
+# =================== SOLVING ===================
 solving:
-  options:
-    load_shedding: false
+  # ------------------- Solver -------------------
   solver:
     name: gurobi
     options: gurobi-default
+
+  # ------------------- Optimization options -------------------
+  options:
+    load_shedding: false
+
+  # ------------------- Solver presets -------------------
   solver_options:
     gurobi-default:
       threads: 8
