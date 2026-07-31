@@ -31,13 +31,6 @@ electricity:
     Generator: [] # Remove 'offwind-ac' and 'offwind-dc' for landlocked countries (e.g. Jordan, Austria, Switzerland)
     Store: [] # battery, H2
 
-  # ----------------- Existing powerplants -------------------
-  powerplants_filter: (DateOut >= 2023 or DateOut != DateOut) and (DateIn <= 2023 or DateIn != DateIn)
-  custom_powerplants:
-    filepaths: # list of custom powerplant files used in "merge" and "replace" options
-    - data/custom/usa/custom/custom_powerplants.csv
-    method: replace # "false" use only powerplantmatching (ppm) data, "merge" combines ppm and custom powerplants, "replace" use only custom powerplants
-
 # ------------------- Weather & renewables -------------------
 renewable:
   hydro:
