@@ -112,7 +112,7 @@ renewable:
 
 # ------------------- Costs & emissions -------------------
 costs:
-  year: 2030 # cost file selection; reference year for costs is always 2020
+  year: 2030 # cost file selection; reference year for costs is always 2025
   cost_scenario: "moderate" # used only with country_specific_data: "US"; "moderate", "advanced", or "conservative"
   cost_scenario_by_technology_group: # optional overrides for specific technology groups
     electricity: "moderate"

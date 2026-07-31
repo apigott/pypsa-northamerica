@@ -18,9 +18,22 @@ scenario:
   simpl: [""]
   ll: ["v1"]
   clusters: [100]
-  opts: [CCL-3H] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
+  opts: [CCL-3h] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints
   planning_horizons: [2030, 2035, 2040] # investment years for myopic; costs year for overnight
-  sopts: ["3H"]
+  sopts:
+  - "3h"
+
+snapshots:
+  start: "2023-01-01"
+  end: "2024-01-01"
+  inclusive: "left" # end is not inclusive
+
+# Weather year shared by snapshots, load profiles, and renewable-resource data.
+weather_year: 2023
+
+load_options:
+  source: "demcast" # "demcast" or "gegis"
+  prediction_year: 2023
 
 
 # =================== DATA RETRIEVAL ===================
@@ -28,14 +41,19 @@ enable:
   # ----------------- Retrieving data -----------------
   retrieve_databundle: false # recommended for first run
   download_osm_data: true # download OpenStreetMap data for the countries specified above
+  retrieve_cutout: false # retrieves the bundled 2013 cutout (cutout-2013-era5); changing load_options.weather_year (default: 2013) requires retrieve_cutout:false and build_cutout: true.
   retrieve_cost_data: true # false: use existing data/costs.csv
   retrieve_databundle_sector: true
+  download_global_buildings: false # download GlobalMLBuildingFootprints data for the countries specified above
+  # ----------------- Building locally -----------------
+  build_cutout: false # requires CDS API key (see https://cds.climate.copernicus.eu/how-to-api); uses snapshots and countries
+  build_natura_raster: false
   # ----------------- Advanced -----------------
-  custom_busmap: true # optional override for cluster_network busmap
+  custom_busmap: false # optional override for cluster_network busmap
 
 # Retrieve precomputed files and bypass their local construction.
 retrieve_precomputed:
-  cutouts: false # true: retrieve US cutouts; false: use retrieve_databundle_light when enabled
+  cutouts: true # true: retrieve US cutouts; false: build or retrieve them through the standard workflow
   osm_raw: true # true: bypass download_osm_data
   osm_clean: true # true: bypass clean_osm_data
   shapes: true # true: bypass build_shapes
@@ -49,26 +67,26 @@ custom_databundles:
     category: cutouts
     destination: "cutouts"
     urls:
-      gdrive: https://drive.google.com/file/d/1Ao_kuHssRaP1qLV-IEG91Hu7E04-nBZg/view?usp=drive_link
+      gdrive: https://drive.google.com/file/d/1p5l10dQpszJvIX135NK2n8thqnqKEdUS/view?usp=drive_link
     output: [cutouts/cutout-2013-era5.nc]
     disable_by_opt:
       build_cutout: [all]
 
-  # precomputed raw osm data
+  # precomputed raw OSM data
   bundle_osm_raw_USA:
     countries: [US]
     category: resources_osm_raw
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/osm_raw.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/osm_raw.zip/content
 
-  # precomputed clean osm data
+  # precomputed clean OSM data
   bundle_osm_clean_USA:
     countries: [US]
     category: resources_osm_clean
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/osm_clean.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/osm_clean.zip/content
 
   # precomputed shapes data
   bundle_shapes_USA:
@@ -76,31 +94,31 @@ custom_databundles:
     category: resources_shapes
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/shapes.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/shapes.zip/content
 
-  # precomputed osm network data
+  # precomputed OSM network data
   bundle_osm_network_USA:
     countries: [US]
     category: resources_osm_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/base_network.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/base_network.zip/content
 
-  # precomputed base.nc
+  # precomputed base network
   bundle_base_network_USA:
     countries: [US]
     category: resources_base_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/base.nc.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/base.nc.zip/content
 
-  # precomputed renewable_profiles data
+  # precomputed renewable profiles
   bundle_renewable_profiles_USA:
     countries: [US]
     category: resources_renewable_profiles
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/renewable_profiles.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/renewable_profiles.zip/content
 
   # demand data used for demand redistribution
   bundle_demand_data_USA:
@@ -108,13 +126,14 @@ custom_databundles:
     category: data_demand_data
     destination: "data/custom/usa"
     urls:
-      zenodo: https://zenodo.org/api/records/21256875/files/demand_data.zip/content
+      zenodo: https://zenodo.org/api/records/21627425/files/demand_data.zip/content
+
 
 # =================== GEOGRAPHY & SHAPES ===================
 
 # ------------------- Clustering -------------------
 clustering:
-  alternative_clustering: false # false: use Voronoi shapes; true: use GADM shapes (only Voronoi clustering is currently supported)
+  alternative_clustering: false # false: use Voronoi shapes; true: use GADM shapes
   simplify_network:
     p_threshold_drop_isolated: 0.0
   aggregation_strategies:
@@ -129,7 +148,7 @@ clustering:
 
 # ------------------- Electricity grid -------------------
 electricity:
-  # ----------------- Electricity generation -------------------
+  # ----------------- Electricity generation -----------------
   extendable_carriers:
     Generator: [solar, onwind, offwind-ac, offwind-dc, csp, geothermal, nuclear, OCGT, CCGT, biomass]
     Store: [battery, H2]
@@ -137,19 +156,19 @@ electricity:
   conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, geothermal, biomass]
   renewable_carriers: [solar, csp, onwind, offwind-ac, offwind-dc, hydro]
 
-  # ----------------- Existing powerplants -------------------
+  # ----------------- Existing powerplants -----------------
   custom_powerplants:
     filepaths:
-    - data/custom/usa/custom_powerplants_US.csv
+    - data/custom/usa/custom/custom_powerplants_US.csv
     method: replace
 
   estimate_renewable_capacities:
     stats: false # false: greenfield expansion; "irena": use IRENA statistics to add expansion limits
 
-  # ----------------- Grid topology -------------------
+  # ----------------- Grid topology -----------------
   voltages: [69., 100., 115., 138., 161., 230., 345., 500., 765.]
 
-  # ----------------- Constraints & reserve -------------------
+  # ----------------- Constraints & reserve -----------------
   agg_p_nom_limits:
     file: data/custom/usa/agg_p_nom_minmax.csv
 
@@ -175,17 +194,17 @@ renewable:
 
 # ------------------- Costs & emissions -------------------
 costs:
-  year: 2030 # cost file selection; reference year for costs is always 2020
-  technology_data_version: v0.14.0
+  year: 2030 # cost file selection; reference year for costs is always 2025
+  technology_data_version: v0.15.0
   output_currency: "USD"
   discountrate: [0.07] # from the `fill_values` section
   country_specific_data: "US" # optional; country-specific data are currently available only for "US"
-  cost_scenario: "moderate" # used only with country_specific_data: "US"; "moderate", "advanced", or "conservative"
+  cost_scenario: "moderate" # "moderate", "advanced", or "conservative"
   cost_scenario_by_technology_group: # optional overrides for specific technology groups
     electricity: "moderate"
     H2_electrolysis: "moderate"
     dac: "moderate"
-  financial_case: "market" # used only with country_specific_data: "US"; "market" or "r&d"
+  financial_case: "market" # "market" or "r&d"
   discount rate:
     direct air capture: 0.10
     Fischer-Tropsch: 0.10
@@ -204,7 +223,7 @@ costs:
 # ------------------- Hydrogen policy & export -------------------
 policy_config:
   hydrogen:
-    temporal_matching: "hourly" # "hourly", "monthly", "yearly", or "no_temporal_matching"
+    temporal_matching: "no_temporal_matching" # "hourly", "monthly", "yearly", or "no_temporal_matching"
     additionality: true
     temporal_matching_carriers: [csp, solar, onwind, offwind-ac, offwind-dc, ror, hydro, nuclear]
     h2_production_constraint: false
@@ -236,6 +255,7 @@ custom_data:
 
 # ------------------- Brownfield capacities -------------------
 existing_capacities:
+  grouping_years_power: [1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023, 2025, 2030]
   threshold_capacity: 5 # MW; capacities below this threshold are not added in a separate horizon
 
 state_policy: "on" # "off" or "on": apply renewable and clean-energy policies at state or country level
@@ -292,7 +312,7 @@ solving:
 
   # ------------------- Optimization options -------------------
   options:
-    load_shedding: false
+    load_shedding: 100
 
   # ------------------- Solver presets -------------------
   solver_options:

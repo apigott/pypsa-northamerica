@@ -34,10 +34,16 @@ Scenario configuration files are stored in `configs/custom`. The main configurat
 
 All Snakemake commands should be executed from the repository root.
 
-To run the U.S. sector-coupled model for the selected, calibrated base year (2023):
+To run the US power model for the selected, calibrated base year (2023):
 
 ```bash
-snakemake -c 1 solve_sector_networks --configfile configs/custom/calibration/config.base.yaml
+snakemake -c 1 solve_all_networks --configfile configs/custom/calibration/config.base.elec.yaml
+```
+
+To run the US sector-coupled model for the selected, calibrated base year (2023):
+
+```bash
+snakemake -c 1 solve_sector_networks --configfile configs/custom/calibration/config.base.sector.yaml
 ```
 
 To run a future-year Reference scenario, replace `20**` with the target year:
