@@ -20,7 +20,8 @@ scenario:
   clusters: [100]
   opts: [CCL-3h] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints
   planning_horizons: [2030, 2035, 2040] # investment years for myopic; costs year for overnight
-  sopts: ["3h"]
+  sopts:
+  - "3h"
 
 snapshots:
   start: "2023-01-01"
@@ -193,7 +194,7 @@ renewable:
 
 # ------------------- Costs & emissions -------------------
 costs:
-  year: 2030 # cost file selection; reference year for costs is always 2020
+  year: 2030 # cost file selection; reference year for costs is always 2025
   technology_data_version: v0.15.0
   output_currency: "USD"
   discountrate: [0.07] # from the `fill_values` section
