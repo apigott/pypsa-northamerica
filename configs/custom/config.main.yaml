@@ -230,7 +230,7 @@ policy_config:
 
 export:
   endogenous: false # true: export demand is determined endogenously
-  h2export: [0] # yearly export demand in TWh; used only when export.endogenous is false
+  h2export: 0 # yearly export demand in TWh; used only when export.endogenous is false
 
 # ------------------- Sector-coupled demand data -------------------
 demand_data:
