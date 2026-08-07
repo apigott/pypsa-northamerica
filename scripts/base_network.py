@@ -521,6 +521,7 @@ def _set_electrical_parameters_lines(
 
     return lines
 
+
 def _set_electrical_parameters_dc_lines(
     lines_config: dict, voltages: list, lines: pd.DataFrame
 ) -> pd.DataFrame:
