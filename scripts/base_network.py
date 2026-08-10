@@ -484,25 +484,33 @@ def _add_custom_line_types(n, path):
     logger.info("Added %s custom line types from %s.", len(line_types), path)
 
 
-def _set_electrical_parameters_lines(
-    lines_config: dict, voltages: list, lines: pd.DataFrame
+def _set_electrical_parameters_ac_lines(
+    lines_config: dict,
+    buses: pd.DataFrame,
+    lines: pd.DataFrame,
+    linetypes: dict,
+    use_country_specific_types: bool,
 ) -> pd.DataFrame:
-    """Assign AC electrical parameters (carrier, type, s_max_pu) to lines.
+    """Assign electrical parameters to AC lines.
 
     Parameters
     ----------
     lines_config : dict
-        ``lines`` section of ``config.yaml``, must contain ``ac_types`` and
-        ``s_max_pu``.
-    voltages : list
-        Nominal voltages to include.
+        ``lines`` section of ``config.yaml``.
+    buses : pd.DataFrame
+        Bus table containing country assignments.
     lines : pd.DataFrame
         AC line table modified in-place and returned.
+    linetypes : dict
+        Default and country-specific AC line-type mappings.
+    use_country_specific_types : bool
+        Whether to use country-specific AC line-type mappings.
 
     Returns
     -------
     pd.DataFrame
-        Lines with ``carrier``, ``dc``, ``type``, and ``s_max_pu`` columns set.
+        Lines with ``carrier``, ``dc``, ``country``, ``type``, and
+        ``s_max_pu`` assigned.
     """
     if lines.empty:
         lines["type"] = []
@@ -513,7 +521,12 @@ def _set_electrical_parameters_lines(
     lines["country"] = lines["bus0"].map(buses["country"])
 
     lines.loc[:, "type"] = lines.apply(
-        lambda x: get_linetype_by_voltage_and_country(x.v_nom, x.country, linetypes),
+        lambda line: get_linetype_by_voltage_and_country(
+            line.v_nom,
+            line.country,
+            linetypes,
+            use_country_specific_types,
+        ),
         axis=1,
     )
 
@@ -523,24 +536,32 @@ def _set_electrical_parameters_lines(
 
 
 def _set_electrical_parameters_dc_lines(
-    lines_config: dict, voltages: list, lines: pd.DataFrame
+    lines_config: dict,
+    buses: pd.DataFrame,
+    lines: pd.DataFrame,
+    linetypes: dict,
+    use_country_specific_types: bool,
 ) -> pd.DataFrame:
-    """Assign DC electrical parameters (carrier, type, s_max_pu) to lines.
+    """Assign electrical parameters to DC lines.
 
     Parameters
     ----------
     lines_config : dict
-        ``lines`` section of ``config.yaml``, must contain ``dc_types`` and
-        ``s_max_pu``.
-    voltages : list
-        Nominal voltages to include.
+        ``lines`` section of ``config.yaml``.
+    buses : pd.DataFrame
+        Bus table containing country assignments.
     lines : pd.DataFrame
         DC line table modified in-place and returned.
+    linetypes : dict
+        Default and country-specific DC line-type mappings.
+    use_country_specific_types : bool
+        Whether to use country-specific DC line-type mappings.
 
     Returns
     -------
     pd.DataFrame
-        Lines with ``carrier``, ``dc``, ``type``, and ``s_max_pu`` columns set.
+        Lines with ``carrier``, ``dc``, ``country``, ``type``, and
+        ``s_max_pu`` assigned.
     """
     if lines.empty:
         lines["type"] = []
@@ -551,7 +572,12 @@ def _set_electrical_parameters_dc_lines(
     lines["country"] = lines["bus0"].map(buses["country"])
 
     lines.loc[:, "type"] = lines.apply(
-        lambda x: get_linetype_by_voltage_and_country(x.v_nom, x.country, linetypes),
+        lambda line: get_linetype_by_voltage_and_country(
+            line.v_nom,
+            line.country,
+            linetypes,
+            use_country_specific_types,
+        ),
         axis=1,
     )
 
@@ -850,6 +876,22 @@ def base_network(
     transformers = _load_transformers_from_osm(inputs.osm_transformers, buses)
     converters = _load_converters_from_osm(inputs.osm_converters, buses)
 
+    use_country_specific_types = lines_config.get(
+        "use_country_specific_types",
+        False,
+    )
+
+    ac_types = lines_config["ac_types"]
+    dc_types = lines_config["dc_types"]
+
+    use_country_specific_ac_types = use_country_specific_types and all(
+        country in ac_types for country in countries_config
+    )
+
+    use_country_specific_dc_types = use_country_specific_types and all(
+        country in dc_types for country in countries_config
+    )
+
     lines_ac = lines[~lines.dc].copy()
     lines_dc = lines[lines.dc].copy()
 
@@ -857,14 +899,16 @@ def base_network(
         lines_config,
         buses,
         lines_ac,
-        lines_config["ac_types"],
+        ac_types,
+        use_country_specific_ac_types,
     )
 
     lines_dc = _set_electrical_parameters_dc_lines(
         lines_config,
         buses,
         lines_dc,
-        lines_config["dc_types"],
+        dc_types,
+        use_country_specific_dc_types,
     )
 
     transformers = _set_electrical_parameters_transformers(
