@@ -28,6 +28,7 @@ scenario:
 enable:
   # ----------------- Retrieving data -----------------
   retrieve_databundle: true # recommended for first run
+  use_test_basins_na: true
   download_osm_data: true # download OpenStreetMap data for the countries specified above
   retrieve_cost_data: true # false: use existing data/costs.csv
   retrieve_databundle_sector: true
@@ -35,6 +36,26 @@ enable:
   build_cutout: false
   # ----------------- Advanced -----------------
   custom_busmap: false # optional override for cluster_network busmap
+
+# Use only the North American HydroBASINS archive in the CI test.
+databundles:
+  bundle_hydrobasins:
+    disable_by_opt:
+      use_test_basins_na: [all]
+
+  bundle_test_basins_na:
+    countries: [US]
+    tutorial: false
+    category: test_basins_na
+    destination: data/custom/hydrobasins_na
+    urls:
+      hydrobasins:
+        base_url: https://data.hydrosheds.org/file/HydroBASINS/standard/
+        suffixes: ["na"]
+    unzip: true
+    level_code: 6
+    output:
+    - data/custom/hydrobasins_na/hybas_na_lev06_v1c.shp
 
 # Retrieve precomputed files and bypass their local construction.
 retrieve_precomputed:
@@ -106,6 +127,9 @@ lines:
 # ------------------- Weather & renewables -------------------
 renewable:
   hydro:
+    hydrobasins_level: 6
+    resource:
+      hydrobasins: data/custom/hydrobasins_na/hybas_na_lev06_v1c.shp
     normalization:
       method: eia
     hydro_capital_cost: true
