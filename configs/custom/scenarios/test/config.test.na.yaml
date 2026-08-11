@@ -28,7 +28,7 @@ scenario:
 enable:
   # ----------------- Retrieving data -----------------
   retrieve_databundle: true # recommended for first run
-  use_test_basins_na: true
+  use_test_basins_na: false
   download_osm_data: true # download OpenStreetMap data for the countries specified above
   retrieve_cost_data: true # false: use existing data/costs.csv
   retrieve_databundle_sector: true
