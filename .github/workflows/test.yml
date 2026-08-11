@@ -114,6 +114,23 @@ jobs:
         du -h -d 1 ~/.cache | sort -h || true
         du -h -d 1 "$CONDA/envs" | sort -h || true
 
+    - name: Diagnose HydroBASINS download
+      run: |
+        curl -4 -L \
+          --connect-timeout 30 \
+          --max-time 180 \
+          --retry 3 \
+          --retry-all-errors \
+          --fail-with-body \
+          --show-error \
+          --verbose \
+          --output /tmp/hybas_na_lev06_v1c.zip \
+          "https://zenodo.org/records/21884703/files/hybas_na_lev06_v1c.zip"
+
+        stat /tmp/hybas_na_lev06_v1c.zip
+        md5sum /tmp/hybas_na_lev06_v1c.zip
+        unzip -t /tmp/hybas_na_lev06_v1c.zip
+
     - name: Run Test
       run: make test
 
