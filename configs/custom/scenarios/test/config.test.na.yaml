@@ -37,37 +37,21 @@ enable:
   # ----------------- Advanced -----------------
   custom_busmap: false # optional override for cluster_network busmap
 
-# Use only the North American HydroBASINS archive in the CI test.
+# Exclude the global HydroBASINS bundle because CI provides the NA test file.
 databundles:
   bundle_hydrobasins:
     disable_by_opt:
       use_test_basins_na: [all]
 
-  bundle_test_basins_na:
-    countries: [US]
-    tutorial: false
-    category: test_basins_na
-    destination: data/custom/hydrobasins_na
-    urls:
-      hydrobasins:
-        base_url: https://zenodo.org/records/21884703/files/
-        suffixes: ["na"]
-    unzip: true
-    level_code: 6
-    output:
-    - data/custom/hydrobasins_na/hybas_na_lev06_v1c.shp
-    disable_by_opt:
-      hydrobasins_na_preloaded: [all]
-
 # Retrieve precomputed files and bypass their local construction.
 retrieve_precomputed:
   cutouts: true
-  osm_raw: true # true: bypass download_osm_data
-  osm_clean: false # true: bypass clean_osm_data
-  shapes: false # true: bypass build_shapes
-  osm_network: false # true: bypass build_osm_network
-  base_network: false # true: bypass base_network
-  renewable_profiles: false # true: bypass build_renewable_profiles
+  osm_raw: true  # true: bypass download_osm_data
+  osm_clean: false  # true: bypass clean_osm_data
+  shapes: false  # true: bypass build_shapes
+  osm_network: false  # true: bypass build_osm_network
+  base_network: false  # true: bypass base_network
+  renewable_profiles: false  # true: bypass build_renewable_profiles
 
 custom_databundles:
   bundle_cutouts_USA:
