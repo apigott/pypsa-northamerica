@@ -32,7 +32,7 @@ enable:
   download_osm_data: true # download OpenStreetMap data for the countries specified above
   retrieve_cost_data: true # false: use existing data/costs.csv
   retrieve_databundle_sector: true
-  retrieve_cutout: true # must be true for CI tests
+  retrieve_cutout: false
   build_cutout: false
   # ----------------- Advanced -----------------
   custom_busmap: false # optional override for cluster_network busmap
@@ -50,7 +50,7 @@ databundles:
     destination: data/custom/hydrobasins_na
     urls:
       hydrobasins:
-        base_url: https://data.hydrosheds.org/file/HydroBASINS/standard/
+        base_url: https://zenodo.org/records/21884703/files/
         suffixes: ["na"]
     unzip: true
     level_code: 6
@@ -59,7 +59,7 @@ databundles:
 
 # Retrieve precomputed files and bypass their local construction.
 retrieve_precomputed:
-  cutouts: false
+  cutouts: true
   osm_raw: true # true: bypass download_osm_data
   osm_clean: false # true: bypass clean_osm_data
   shapes: false # true: bypass build_shapes
@@ -67,6 +67,16 @@ retrieve_precomputed:
   base_network: false # true: bypass base_network
   renewable_profiles: false # true: bypass build_renewable_profiles
 
+custom_databundles:
+  bundle_cutouts_USA:
+    countries: [US]
+    category: cutouts
+    destination: "cutouts"
+    urls:
+      gdrive: https://drive.google.com/file/d/1CUkXPsU024-kLLI3rp7BzFGeHxAxIWRP/view?usp=drive_link
+    output: [cutouts/cutout-2013-era5.nc]
+    disable_by_opt:
+      build_cutout: [all]
 
 # =================== GEOGRAPHY & SHAPES ===================
 
