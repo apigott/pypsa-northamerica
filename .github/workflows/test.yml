@@ -102,9 +102,12 @@ jobs:
           resources/US_small_test
           networks/US_small_test
           cutouts/cutout-2013-era5.nc
-        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
+        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/**/*.yaml', 'config*.yaml') }}
         restore-keys: |
           pypsa-na-test-data-${{ runner.os }}-
+
+    - name: Prepare test data directories
+      run: mkdir -p data/custom/hydrobasins_na
 
     - name: Disk usage before test
       if: always()
@@ -113,23 +116,6 @@ jobs:
         du -h -d 1 . | sort -h || true
         du -h -d 1 ~/.cache | sort -h || true
         du -h -d 1 "$CONDA/envs" | sort -h || true
-
-    - name: Diagnose HydroBASINS download
-      run: |
-        curl -4 -L \
-          --connect-timeout 30 \
-          --max-time 180 \
-          --retry 3 \
-          --retry-all-errors \
-          --fail-with-body \
-          --show-error \
-          --verbose \
-          --output /tmp/hybas_na_lev06_v1c.zip \
-          "https://zenodo.org/records/21884703/files/hybas_na_lev06_v1c.zip"
-
-        stat /tmp/hybas_na_lev06_v1c.zip
-        md5sum /tmp/hybas_na_lev06_v1c.zip
-        unzip -t /tmp/hybas_na_lev06_v1c.zip
 
     - name: Run Test
       run: make test
