@@ -137,6 +137,32 @@ jobs:
     - name: Run Test
       run: make test
 
+    - name: Diagnose storage configuration
+      if: always()
+      shell: bash -l {0}
+      run: |
+        python - <<'PY'
+        import yaml
+
+        config_path = "results/US_small_test/configs/config.yaml"
+
+        with open(config_path) as file:
+            config = yaml.safe_load(file)
+
+        electricity = config["electricity"]
+        max_hours = electricity["max_hours"]
+        storage_techs = electricity["storage_techs"]
+
+        print("max_hours:")
+        print(yaml.safe_dump(max_hours, sort_keys=True))
+
+        print("storage_techs:")
+        print(yaml.safe_dump(storage_techs, sort_keys=True))
+
+        print("Keys missing from storage_techs:")
+        print(sorted(set(max_hours) - set(storage_techs)))
+        PY
+
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v7
