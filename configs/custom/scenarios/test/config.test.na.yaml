@@ -128,7 +128,7 @@ renewable:
       hydrobasins: data/custom/hydrobasins_na/hybas_na_lev06_v1c.shp
     normalization:
       method: eia
-    hydro_capital_cost: true
+    hydro_capital_cost: false
 
 # ------------------- Costs & emissions -------------------
 costs:
