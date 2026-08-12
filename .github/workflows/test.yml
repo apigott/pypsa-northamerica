@@ -142,25 +142,59 @@ jobs:
       shell: bash -l {0}
       run: |
         python - <<'PY'
+        from pathlib import Path
+
         import yaml
 
-        config_path = "results/US_small_test/configs/config.yaml"
+        config_path = Path("results/US_small_test/configs/config.yaml")
 
-        with open(config_path) as file:
+        with config_path.open() as file:
             config = yaml.safe_load(file)
 
-        electricity = config["electricity"]
-        max_hours = electricity["max_hours"]
-        storage_techs = electricity["storage_techs"]
+        print("Top-level keys:")
+        print(sorted(config))
 
-        print("max_hours:")
-        print(yaml.safe_dump(max_hours, sort_keys=True))
+        found = {}
 
-        print("storage_techs:")
-        print(yaml.safe_dump(storage_techs, sort_keys=True))
+        def walk(value, path=""):
+            if isinstance(value, dict):
+                for key, child in value.items():
+                    child_path = f"{path}.{key}" if path else str(key)
 
-        print("Keys missing from storage_techs:")
-        print(sorted(set(max_hours) - set(storage_techs)))
+                    if key in {"max_hours", "storage_techs"}:
+                        found.setdefault(key, []).append(
+                            (child_path, child)
+                        )
+
+                    walk(child, child_path)
+            elif isinstance(value, list):
+                for index, child in enumerate(value):
+                    walk(child, f"{path}[{index}]")
+
+        walk(config)
+
+        for key in ("max_hours", "storage_techs"):
+            print(f"\nOccurrences of {key}:")
+            for path, value in found.get(key, []):
+                print(f"\n{path}:")
+                print(yaml.safe_dump(value, sort_keys=True))
+
+        max_hours_values = found.get("max_hours", [])
+        storage_tech_values = found.get("storage_techs", [])
+
+        for max_path, max_hours in max_hours_values:
+            if not isinstance(max_hours, dict):
+                continue
+
+            for tech_path, storage_techs in storage_tech_values:
+                if not isinstance(storage_techs, dict):
+                    continue
+
+                missing = sorted(set(max_hours) - set(storage_techs))
+                print(
+                    f"\nComparison: {max_path} vs {tech_path}"
+                )
+                print(f"Missing mappings: {missing}")
         PY
 
     - name: Upload artifacts
