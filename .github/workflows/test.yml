@@ -102,9 +102,29 @@ jobs:
           resources/US_small_test
           networks/US_small_test
           cutouts/cutout-2013-era5.nc
-        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/custom/**/*.yaml', 'config*.yaml', 'test/config.test.yaml') }}
+        key: pypsa-na-test-data-${{ runner.os }}-${{ hashFiles('configs/**/*.yaml', 'config*.yaml') }}
         restore-keys: |
           pypsa-na-test-data-${{ runner.os }}-
+
+    - name: Prepare HydroBASINS test data
+      shell: bash
+      run: |
+        destination="data/custom/hydrobasins_na"
+        archive="${RUNNER_TEMP}/hybas_na_lev06_v1c.zip"
+        shapefile="${destination}/hybas_na_lev06_v1c.shp"
+        url="https://zenodo.org/records/21884703/files/hybas_na_lev06_v1c.zip?download=1"
+
+        mkdir -p "$destination"
+
+        if [ ! -f "$shapefile" ]; then
+          curl --fail --location --retry 3 --retry-all-errors \
+            --output "$archive" \
+            "$url"
+
+          unzip -o -j "$archive" -d "$destination"
+        fi
+
+        test -f "$shapefile"
 
     - name: Disk usage before test
       if: always()
@@ -310,6 +330,26 @@ jobs:
         pixi-version: latest
         environments: pypsa-earth
         cache: true
+
+    - name: Prepare HydroBASINS test data
+      shell: bash
+      run: |
+        destination="data/custom/hydrobasins_na"
+        archive="${RUNNER_TEMP}/hybas_na_lev06_v1c.zip"
+        shapefile="${destination}/hybas_na_lev06_v1c.shp"
+        url="https://zenodo.org/records/21884703/files/hybas_na_lev06_v1c.zip?download=1"
+
+        mkdir -p "$destination"
+
+        if [ ! -f "$shapefile" ]; then
+          curl --fail --location --retry 3 --retry-all-errors \
+            --output "$archive" \
+            "$url"
+
+          unzip -o -j "$archive" -d "$destination"
+        fi
+
+        test -f "$shapefile"
 
     - name: Run Test
       run: pixi run -e pypsa-earth make test
