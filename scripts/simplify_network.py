@@ -188,9 +188,7 @@ def simplify_network_to_base_voltage(
             ["bus0", "bus1"],
         ].copy()
 
-        mismatched_lines["bus0_v_nom"] = line_base_voltages.loc[
-            mismatched_ac_lines
-        ]
+        mismatched_lines["bus0_v_nom"] = line_base_voltages.loc[mismatched_ac_lines]
         mismatched_lines["bus1_v_nom"] = line_bus1_base_voltages.loc[
             mismatched_ac_lines
         ]
@@ -240,9 +238,7 @@ def simplify_network_to_base_voltage(
     n.lines["i_nom"] = n.lines["type"].map(n.line_types["i_nom"])
 
     # Note: s_nom is set in base_network.
-    n.lines["num_parallel"] = n.lines.eval(
-        "s_nom / (sqrt(3) * v_nom * i_nom)"
-    )
+    n.lines["num_parallel"] = n.lines.eval("s_nom / (sqrt(3) * v_nom * i_nom)")
 
     # Recalculate nominal capacity for DC lines.
     n.lines.loc[dc_lines, "num_parallel"] = n.lines.loc[dc_lines].eval(
@@ -256,13 +252,9 @@ def simplify_network_to_base_voltage(
     )
     trafo_map = trafo_map[~trafo_map.index.duplicated(keep="first")]
 
-    several_trafo_b = trafo_map.isin(trafo_map.index) & (
-        trafo_map != trafo_map.index
-    )
+    several_trafo_b = trafo_map.isin(trafo_map.index) & (trafo_map != trafo_map.index)
     while several_trafo_b.any():
-        trafo_map[several_trafo_b] = trafo_map[several_trafo_b].map(
-            trafo_map
-        )
+        trafo_map[several_trafo_b] = trafo_map[several_trafo_b].map(trafo_map)
         several_trafo_b = trafo_map.isin(trafo_map.index) & (
             trafo_map != trafo_map.index
         )
