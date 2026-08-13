@@ -159,7 +159,7 @@ electricity:
   # ----------------- Existing powerplants -----------------
   custom_powerplants:
     filepaths:
-    - data/custom/usa/custom/custom_powerplants_US.csv
+    - data/custom/usa/custom_powerplants_US.csv
     method: replace
 
   estimate_renewable_capacities:
