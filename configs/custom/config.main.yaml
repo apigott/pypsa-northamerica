@@ -78,7 +78,7 @@ custom_databundles:
     category: resources_osm_raw
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/osm_raw.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/osm_raw.zip/content
 
   # precomputed clean OSM data
   bundle_osm_clean_USA:
@@ -86,7 +86,7 @@ custom_databundles:
     category: resources_osm_clean
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/osm_clean.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/osm_clean.zip/content
 
   # precomputed shapes data
   bundle_shapes_USA:
@@ -94,7 +94,7 @@ custom_databundles:
     category: resources_shapes
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/shapes.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/shapes.zip/content
 
   # precomputed OSM network data
   bundle_osm_network_USA:
@@ -102,7 +102,7 @@ custom_databundles:
     category: resources_osm_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/base_network.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/base_network.zip/content
 
   # precomputed base network
   bundle_base_network_USA:
@@ -110,7 +110,7 @@ custom_databundles:
     category: resources_base_network
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/base.nc.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/base.nc.zip/content
 
   # precomputed renewable profiles
   bundle_renewable_profiles_USA:
@@ -118,7 +118,7 @@ custom_databundles:
     category: resources_renewable_profiles
     destination: "resources"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/renewable_profiles.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/renewable_profiles.zip/content
 
   # demand data used for demand redistribution
   bundle_demand_data_USA:
@@ -126,7 +126,7 @@ custom_databundles:
     category: data_demand_data
     destination: "data/custom/usa"
     urls:
-      zenodo: https://zenodo.org/api/records/21627425/files/demand_data.zip/content
+      zenodo: https://zenodo.org/api/records/21884703/files/demand_data.zip/content
 
 
 # =================== GEOGRAPHY & SHAPES ===================
