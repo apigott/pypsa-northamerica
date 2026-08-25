@@ -185,7 +185,7 @@ def add_sector_co2_limits(
     """
     try:
         # Load the policy file
-        co2_policy = pd.read_csv(policy_file)
+        co2_policy = pd.read_csv(policy_file, index_col=0)
     except KeyError:
         logger.error("No sector specific co2 policy constraint file found - global constraints will still be applied.")
         return
@@ -200,7 +200,7 @@ def add_sector_co2_limits(
 
     # Add CO2 limits to the network for each sector
     for sector in co2_policy.sector.unique():
-        limit = co2_policy.loc[sector, "limit"]
+        limit = float(co2_policy.loc[sector][0])
 
         # Filter buses to include sector specific buses 
         sector_carriers = sector_carrier_mapping.get(sector, [])
