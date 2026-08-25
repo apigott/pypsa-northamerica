@@ -6,17 +6,13 @@ SPDX-License-Identifier: CC-BY-4.0
 
 Release Notes
 
-# PyPSA-NorthAmerica
-
-This part of documentation is specific to PyPSA-NorthAmerica and collects descriptive release notes relative to the North-American workflow
-
-* Added representative US transmission line types derived from the Texas A&M ACTIVSg82k synthetic transmission network [PR #31](https://github.com/pypsa-meets-earth/pypsa-northamerica/pull/31)
-
 # Upcoming release
 
 This part of documentation collects descriptive release notes to capture the main improvements introduced by developing the model before the next release.
 
 **New Features and Major Changes**
+
+* Support country-specific mappings and custom transmission line types [PR # 1933](https://github.com/pypsa-meets-earth/pypsa-earth/pull/1933)
 
 * Move ``plotting`` defaults to ``configs/plotting.default.yaml`` and solving defaults (``solving.options``, ``solving.mem``, ``solving.solver_options``) to ``configs/solving.default.yaml``; both still merge via Snakemake ``configfile:`` and remain overridable from ``config.yaml``. ``config.default.yaml`` keeps only ``solving.solver`` (name and preset choice) [PR #1957](https://github.com/pypsa-meets-earth/pypsa-earth/pull/1957)
 
