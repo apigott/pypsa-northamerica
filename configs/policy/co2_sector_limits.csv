@@ -1,4 +1,4 @@
 sector, limit
-heating, inf
-electricity, inf
-transport, inf
+aviation, inf
+heat, inf
+land_transport, inf
