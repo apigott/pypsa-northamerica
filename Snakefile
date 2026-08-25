@@ -348,7 +348,7 @@ rule base_network:
         + "base_network/all_transformers_build_network.csv",
         country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
         offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        line_types=config["lines"].get("custom_line_types", []),  # PyPSA-NorthAmerica
+        custom_line_types="data/custom_line_types.csv",
     output:
         "networks/" + RDIR + "base.nc",
     log:
