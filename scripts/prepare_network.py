@@ -192,15 +192,29 @@ def add_sector_co2_limits(
     # Load the policy file
     co2_policy = pd.read_csv(policy_file)
 
+    Nyears = n.snapshot_weightings.objective.sum() / 8760.0
+
+    sector_carrier_mapping = {
+        "land_transport": ["land transport oil emissions"],
+        "heat": ["urban central gas CHP", "urban central gas CHP CC", " micro gas CHP"],
+        "aviation": ["kerosene for aviation"],
+    }
+
     # Add CO2 limits to the network for each sector
     for sector in co2_policy.sector.unique():
         limit = co2_policy.loc[sector, "limit"]
+
+        # Filter buses to include sector specific buses 
+        sector_carriers = sector_carrier_mapping.get(sector, [])
+        sector_buses = n.buses[n.buses.carrier.str.isin(sector_carriers)].index
+
         n.add(
             "GlobalConstraint", 
             f"CO2_limit_{sector}", 
-            carrier_attribute="co2_emissions",
+            carrier_attribute="co2",
             sense="<=", 
-            constant=limit
+            constant=limit * Nyears,
+            bus=sector_buses.tolist(),
         )
 
     return
