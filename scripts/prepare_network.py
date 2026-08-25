@@ -184,13 +184,11 @@ def add_sector_co2_limits(
 
     """
     try:
-        f = config["sector"]["co2"]["policy"]
+        # Load the policy file
+        co2_policy = pd.read_csv(policy_file)
     except KeyError:
         logger.error("No sector specific co2 policy constraint file found - global constraints will still be applied.")
         return
-
-    # Load the policy file
-    co2_policy = pd.read_csv(policy_file)
 
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
 
