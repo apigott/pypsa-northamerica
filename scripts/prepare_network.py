@@ -199,12 +199,12 @@ def add_sector_co2_limits(
     }
 
     # Add CO2 limits to the network for each sector
-    for sector in co2_policy.sector.unique():
+    for sector in co2_policy.index:
         limit = float(co2_policy.loc[sector][0])
 
         # Filter buses to include sector specific buses 
         sector_carriers = sector_carrier_mapping.get(sector, [])
-        sector_buses = n.buses[n.buses.carrier.str.isin(sector_carriers)].index
+        sector_buses = n.buses[n.buses.carrier.isin(sector_carriers)].index
 
         n.add(
             "GlobalConstraint", 

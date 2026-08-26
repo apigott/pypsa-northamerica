@@ -1,4 +1,4 @@
-sector, limit
-aviation, inf
-heat, inf
-land_transport, inf
+isector,limit
+aviation,inf
+heat,inf
+land_transport,inf
