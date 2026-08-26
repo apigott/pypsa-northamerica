@@ -9,17 +9,17 @@ countries: ["US"] # ISO codes, continent, or custom region
 foresight: overnight # "myopic" or "overnight"
 
 run:
-  sector_name: "US_2023" # use this to keep track of sector scenario runs
+  sector_name: "US_2023_co2" # use this to keep track of sector scenario runs
 
 scenario:
   simpl: [""]
   ll: ["v1"]
   clusters: [100]
-  opts: [Co2L-3h] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
+  opts: [Co2L-168h] # hyphen-joined options: 3h/6h/24h/Nseg temporal | Co2L/Ep/CH4L caps & prices | ATK/ATKc autarky | {carrier}+p/c/m scale | CCL/BAU/SAFE/RES/EQ solve constraints — see doc/user-guide/wildcards.md
   planning_horizons: # investment years for myopic; costs year for overnight
   - 2023
   sopts:
-  - "3h"
+  - "168h"
 
 
 # =================== NETWORK & RESOURCES ===================
@@ -61,6 +61,9 @@ co2:
   limit: 4.633e+9 # base * 1.1 for calibration purposes
   base: 4.413e+9 # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
   emission_price: 0. # [currency/tCO2]; active via Ep wildcard
+  sector_policy:
+    enable: true
+    policy_file: "configs/policy/co2_sector_limits.csv"
 
 
 # =================== SECTOR OPTIONS ===================
@@ -105,3 +108,8 @@ sector:
   # ------------------- SHIPPING & AVIATION SECTOR -------------------
   shipping_hydrogen_share: # 1 means all hydrogen-powered shipping
     AB_2023: 0
+
+solving:
+  solver_options:
+    gurobi-default:
+      threads: 0
