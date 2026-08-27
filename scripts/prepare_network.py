@@ -209,7 +209,7 @@ def add_sector_co2_limits(
         n.add(
             "GlobalConstraint", 
             f"CO2_limit_{sector}", 
-            carrier_attribute="co2",
+            carrier_attribute="co2_emissions",
             sense="<=", 
             constant=limit * Nyears,
             bus=sector_buses.tolist(),
