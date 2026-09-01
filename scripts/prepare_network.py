@@ -444,7 +444,7 @@ if __name__ == "__main__":
                 co2limit = float(snakemake.params.co2["limit"])
                 logger.info("Setting CO2 limit according to config value.")
             add_co2limit(n, co2limit, Nyears)
-            add_sector_co2_limits(n, snakemake.params.co2["sector_policy"]["policy_file"])
+            # add_sector_co2_limits(n, snakemake.params.co2["sector_policy"]["policy_file"])
             break
 
     for o in opts:
