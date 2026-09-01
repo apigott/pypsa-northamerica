@@ -169,53 +169,53 @@ def add_co2limit(n, annual_emissions, Nyears=1.0):
         constant=annual_emissions * Nyears,
     )
 
-def add_sector_co2_limits(
-    n: pypsa.Network, policy_file: str,
-):
-    """
-    Adds CO2 limits to the network for each sector.
+# def add_sector_co2_limits(
+#     n: pypsa.Network, policy_file: str,
+# ):
+#     """
+#     Adds CO2 limits to the network for each sector.
 
-    Parameters
-    ----------
-    n : pypsa.Network
-        The network to which the CO2 limits will be added.
-    policy_file : str
-        Path to the policy file containing the CO2 limits for each sector.
+#     Parameters
+#     ----------
+#     n : pypsa.Network
+#         The network to which the CO2 limits will be added.
+#     policy_file : str
+#         Path to the policy file containing the CO2 limits for each sector.
 
-    """
-    try:
-        # Load the policy file
-        co2_policy = pd.read_csv(policy_file, index_col=0)
-    except KeyError:
-        logger.error("No sector specific co2 policy constraint file found - global constraints will still be applied.")
-        return
+#     """
+#     try:
+#         # Load the policy file
+#         co2_policy = pd.read_csv(policy_file, index_col=0)
+#     except KeyError:
+#         logger.error("No sector specific co2 policy constraint file found - global constraints will still be applied.")
+#         return
 
-    Nyears = n.snapshot_weightings.objective.sum() / 8760.0
+#     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
 
-    sector_carrier_mapping = {
-        "land_transport": ["land transport oil emissions"],
-        "heat": ["urban central gas CHP", "urban central gas CHP CC", " micro gas CHP"],
-        "aviation": ["kerosene for aviation"],
-    }
+#     sector_carrier_mapping = {
+#         "land_transport": ["land transport oil emissions"],
+#         "heat": ["urban central gas CHP", "urban central gas CHP CC", " micro gas CHP"],
+#         "aviation": ["kerosene for aviation"],
+#     }
 
-    # Add CO2 limits to the network for each sector
-    for sector in co2_policy.index:
-        limit = float(co2_policy.loc[sector][0])
+#     # Add CO2 limits to the network for each sector
+#     for sector in co2_policy.index:
+#         limit = float(co2_policy.loc[sector][0])
 
-        # Filter buses to include sector specific buses 
-        sector_carriers = sector_carrier_mapping.get(sector, [])
-        sector_buses = n.buses[n.buses.carrier.isin(sector_carriers)].index
+#         # Filter buses to include sector specific buses 
+#         sector_carriers = sector_carrier_mapping.get(sector, [])
+#         sector_buses = n.buses[n.buses.carrier.isin(sector_carriers)].index
 
-        n.add(
-            "GlobalConstraint", 
-            f"CO2_limit_{sector}", 
-            carrier_attribute="co2_emissions",
-            sense="<=", 
-            constant=limit * Nyears,
-            bus=sector_buses.tolist(),
-        )
+#         n.add(
+#             "GlobalConstraint", 
+#             f"CO2_limit_{sector}", 
+#             carrier_attribute="co2_emissions",
+#             sense="<=", 
+#             constant=limit * Nyears,
+#             bus=sector_buses.tolist(),
+#         )
 
-    return
+#     return
 
 
 def add_gaslimit(n, gaslimit, Nyears=1.0):
