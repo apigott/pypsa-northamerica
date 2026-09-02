@@ -1201,9 +1201,9 @@ def extra_functionality(n, snapshots):
         logger.info("setting H2 color mix")
         set_h2_colors(n)
 
-    if snakemake.config["co2"]["policy"]:
+    if snakemake.config["co2"]["sector_policy"]["enable"]:
         logger.info("setting sector specific co2 limits")
-        add_sector_co2_limits(n, snakemake.config["sector"]["co2"]["policy"])
+        add_sector_co2_limits(n, snakemake.config["co2"]["sector_policy"]["policy_file"])
 
     add_co2_sequestration_limit(n, snapshots)
 
