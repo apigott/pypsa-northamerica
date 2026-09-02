@@ -1203,7 +1203,7 @@ def extra_functionality(n, snapshots):
 
     if snakemake.config["co2"]["sector_policy"]["enable"]:
         logger.info("setting sector specific co2 limits")
-        add_sector_co2_limits(n, snakemake.config["co2"]["sector_policy"]["policy_file"])
+        add_co2_sector_limits(n, snakemake.config["co2"]["sector_policy"]["policy_file"])
 
     add_co2_sequestration_limit(n, snapshots)
 
