@@ -968,7 +968,7 @@ def add_co2_sector_limits(n, policy_file):
         return
     
     m = n.model
-    weight = n.snapshot_weightings.generators.loc[snapshots]
+    weight = n.snapshot_weightings.generators
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
     co2_bus_names = n.buses.index[n.buses.carrier.str.contains("co2", case=False, na=False)]
 
