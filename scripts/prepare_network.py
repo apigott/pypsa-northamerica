@@ -58,9 +58,9 @@ Description
     for all ``scenario`` s in the configuration file
     the rule :mod:`prepare_network`.
 """
-from logging import config
 import os
 import re
+from logging import config
 from zipfile import ZipFile
 
 import country_converter as cc
@@ -169,6 +169,7 @@ def add_co2limit(n, annual_emissions, Nyears=1.0):
         constant=annual_emissions * Nyears,
     )
 
+
 # def add_sector_co2_limits(
 #     n: pypsa.Network, policy_file: str,
 # ):
@@ -202,15 +203,15 @@ def add_co2limit(n, annual_emissions, Nyears=1.0):
 #     for sector in co2_policy.index:
 #         limit = float(co2_policy.loc[sector][0])
 
-#         # Filter buses to include sector specific buses 
+#         # Filter buses to include sector specific buses
 #         sector_carriers = sector_carrier_mapping.get(sector, [])
 #         sector_buses = n.buses[n.buses.carrier.isin(sector_carriers)].index
 
 #         n.add(
-#             "GlobalConstraint", 
-#             f"CO2_limit_{sector}", 
+#             "GlobalConstraint",
+#             f"CO2_limit_{sector}",
 #             carrier_attribute="co2_emissions",
-#             sense="<=", 
+#             sense="<=",
 #             constant=limit * Nyears,
 #             bus=sector_buses.tolist(),
 #         )
