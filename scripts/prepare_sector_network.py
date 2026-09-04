@@ -1351,7 +1351,8 @@ def add_biomass(n: pypsa.Network, costs: pd.DataFrame) -> None:
                 efficiency4=costs.at["solid biomass", "CO2 intensity"]
                 * costs.at["biomass CHP capture", "capture_rate"],
                 lifetime=costs.at[key, "lifetime"],
-                sector="biomass",
+                sector="power_and_heat_generation",
+                subsector="chp",
             )
 
 
@@ -2852,7 +2853,8 @@ def add_heat(
                 / costs.at["central gas CHP", "c_b"],
                 efficiency3=costs.at["gas", "CO2 intensity"],
                 lifetime=costs.at["central gas CHP", "lifetime"],
-                sector="heat",
+                sector="power_and_heat_generation",
+                subsector="chp",
             )
             if snakemake.params.sector_options["cc"]:
                 n.madd(
@@ -2892,7 +2894,8 @@ def add_heat(
                     efficiency4=costs.at["gas", "CO2 intensity"]
                     * costs.at["biomass CHP capture", "capture_rate"],
                     lifetime=costs.at["central gas CHP", "lifetime"],
-                    sector="heat",
+                    sector="power_and_heat_generation",
+                    subsector="chp",
                 )
 
         if options["chp"] and options["micro_chp"] and name != "urban central":
