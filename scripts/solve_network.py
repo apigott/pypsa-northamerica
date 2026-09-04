@@ -941,17 +941,36 @@ def add_co2_sequestration_limit(n, sns):
     n.model.add_constraints(lhs <= rhs, name=f"GlobalConstraint-{name}")
 
 
-def _co2_factor_for_links(n, link_names, co2_bus_names):
-    """For each link, find which bus slot feeds the CO2 bus and return the
-    matching efficiency as a per-unit emissions factor (t CO2 / MWh of p)."""
+def _co2_factor_for_links(n, link_names):
+    """Return the direct atmospheric CO2 factor for each link."""
     links = n.links.loc[link_names]
     factor = pd.Series(0.0, index=link_names)
-    for i in range(1, 4):  # bus1, bus2, bus3 — extend if your override goes further
-        bus_col, eff_col = f"bus{i}", ("efficiency" if i == 1 else f"efficiency{i}")
-        if bus_col not in links.columns:
+
+    bus_cols = sorted(
+        (
+            col
+            for col in links.columns
+            if col.startswith("bus") and col[3:].isdigit() and int(col[3:]) >= 1
+        ),
+        key=lambda col: int(col[3:]),
+    )
+
+    for bus_col in bus_cols:
+        port = int(bus_col[3:])
+        eff_col = "efficiency" if port == 1 else f"efficiency{port}"
+
+        hit = links[bus_col].eq("co2 atmosphere")
+        if not hit.any():
             continue
-        hit = links[links[bus_col].isin(co2_bus_names)]
-        factor.loc[hit.index] = hit[eff_col].fillna(0.0)
+
+        if eff_col not in links.columns:
+            raise KeyError(
+                f"Missing '{eff_col}' for links connected to co2 atmosphere "
+                f"through '{bus_col}'."
+            )
+
+        factor.loc[hit] += links.loc[hit, eff_col].fillna(0.0)
+
     return factor
 
 
@@ -974,9 +993,6 @@ def add_co2_sector_limits(n, policy_file):
 
     weight = n.snapshot_weightings.generators
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
-    co2_bus_names = n.buses.index[
-        n.buses.carrier.str.contains("co2", case=False, na=False)
-    ]
 
     for sector in co2_policy.index:
         # link co2 emissions
@@ -985,7 +1001,7 @@ def add_co2_sector_limits(n, policy_file):
         if link_names.empty:
             logger.info(f"No links matched sector '{sector}'.")
 
-        factor = _co2_factor_for_links(n, link_names, co2_bus_names)
+        factor = _co2_factor_for_links(n, link_names)
         active = factor[factor != 0].index
         if active.empty:
             logger.info(
