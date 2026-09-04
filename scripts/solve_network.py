@@ -967,9 +967,11 @@ def add_co2_sector_limits(n, policy_file):
         co2_policy = pd.read_csv(policy_file, index_col=0)
 
     except FileNotFoundError:
-        logger.error("No sector specific co2 policy constraint file found - global constraints will still be applied.")
+        logger.error(
+            "No sector specific co2 policy constraint file found - global constraints will still be applied."
+        )
         return
-    
+
     weight = n.snapshot_weightings.generators
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
     co2_bus_names = n.buses.index[
@@ -986,7 +988,9 @@ def add_co2_sector_limits(n, policy_file):
         factor = _co2_factor_for_links(n, link_names, co2_bus_names)
         active = factor[factor != 0].index
         if active.empty:
-            logger.info(f"Links for sector '{sector}' don't connect to a CO2 bus - check the mapping/columns.")
+            logger.info(
+                f"Links for sector '{sector}' don't connect to a CO2 bus - check the mapping/columns."
+            )
 
         p_link = n.model["Link-p"].sel(Link=active)
         lhs_link = (p_link * factor.loc[active] * weight).sum()
@@ -997,7 +1001,7 @@ def add_co2_sector_limits(n, policy_file):
             logger.info(f"No loads matched sector '{sector}'.")
 
         p_load = n.model["Load-p_set"].sel(Load=load_names)
-        lhs_load = (p_load * weight).sum() 
+        lhs_load = (p_load * weight).sum()
 
         rhs = limit * Nyears  # scale by years
         n.model.add_constraints(lhs_link + lhs_load <= rhs, name=f"co2_{sector}_limit")
