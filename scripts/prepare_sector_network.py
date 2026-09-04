@@ -2912,6 +2912,13 @@ def add_heat(
                 )
 
         if options["chp"] and options["micro_chp"] and name != "urban central":
+            if name.startswith("residential"):
+                micro_chp_sector = "residential"
+            elif name.startswith("services"):
+                micro_chp_sector = "services"
+            else:
+                raise ValueError(f"Unknown heat system: {name}")
+
             n.madd(
                 "Link",
                 h_nodes[name] + f" {name} micro gas CHP",
@@ -2927,7 +2934,8 @@ def add_heat(
                 efficiency3=costs.at["gas", "CO2 intensity"],
                 capital_cost=costs.at["micro CHP", "fixed"],
                 lifetime=costs.at["micro CHP", "lifetime"],
-                sector="heat",
+                sector=micro_chp_sector,
+                subsector="",
             )
 
 
