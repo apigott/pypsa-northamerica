@@ -470,6 +470,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             ]
             / costs.at["H2 production solid biomass steam reforming", "wood-input"],
             "efficiency3": costs.at["solid biomass", "CO2 intensity"],
+            "sector": "hydrogen",
         },
         "Biomass gasification": {
             "cost_name": "H2 production biomass gasification",
@@ -484,6 +485,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             ]
             / costs.at["H2 production biomass gasification", "wood-input"],
             "efficiency3": costs.at["solid biomass", "CO2 intensity"],
+            "sector": "hydrogen",
         },
         "Biomass gasification CC": {
             "cost_name": "H2 production biomass gasification CC",
@@ -502,6 +504,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             * (1 - options["cc_fraction"]),
             "efficiency4": costs.at["solid biomass", "CO2 intensity"]
             * options["cc_fraction"],
+            "sector": "hydrogen",
         },
         "SMR": {
             "cost_name": "SMR",
@@ -510,6 +513,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             "bus2": "co2 atmosphere",
             "efficiency": costs.at["SMR", "efficiency"],
             "efficiency2": costs.at["gas", "CO2 intensity"],
+            "sector": "hydrogen",
         },
         "SMR CC": {
             "cost_name": "SMR CC",
@@ -521,6 +525,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             "efficiency2": costs.at["gas", "CO2 intensity"]
             * (1 - options["cc_fraction"]),
             "efficiency3": costs.at["gas", "CO2 intensity"] * options["cc_fraction"],
+            "sector": "hydrogen",
         },
         "Natural gas steam reforming": {
             "cost_name": "H2 production natural gas steam reforming",
@@ -535,6 +540,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             ]
             / costs.at["H2 production natural gas steam reforming", "gas-input"],
             "efficiency3": costs.at["gas", "CO2 intensity"],
+            "sector": "hydrogen",
         },
         "Natural gas steam reforming CC": {
             "cost_name": "H2 production natural gas steam reforming CC",
@@ -552,6 +558,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             "efficiency3": costs.at["gas", "CO2 intensity"]
             * (1 - options["cc_fraction"]),
             "efficiency4": costs.at["gas", "CO2 intensity"] * options["cc_fraction"],
+            "sector": "hydrogen",
         },
         "Coal gasification": {
             "cost_name": "H2 production coal gasification",
@@ -565,6 +572,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             ]
             / costs.at["H2 production coal gasification", "coal-input"],
             "efficiency3": costs.at["coal", "CO2 intensity"],
+            "sector": "hydrogen",
         },
         "Coal gasification CC": {
             "cost_name": "H2 production coal gasification CC",
@@ -582,6 +590,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             "efficiency3": costs.at["coal", "CO2 intensity"]
             * (1 - options["cc_fraction"]),
             "efficiency4": costs.at["coal", "CO2 intensity"] * options["cc_fraction"],
+            "sector": "hydrogen",
         },
         "Heavy oil partial oxidation": {
             "cost_name": "H2 production heavy oil partial oxidation",
@@ -596,6 +605,7 @@ def add_hydrogen(n: pypsa.Network, costs: pd.DataFrame) -> None:
             ]
             / costs.at["H2 production heavy oil partial oxidation", "oil-input"],
             "efficiency3": costs.at["oil", "CO2 intensity"],
+            "sector": "hydrogen",
         },
     }
 
@@ -1209,6 +1219,7 @@ def add_biomass(n: pypsa.Network, costs: pd.DataFrame) -> None:
         marginal_cost=costs.loc["biogas upgrading", "VOM"],
         efficiency2=-costs.at["gas", "CO2 intensity"],
         p_nom_extendable=True,
+        sector="biogas",
     )
 
     if options["biomass_transport"]:
@@ -1340,6 +1351,7 @@ def add_biomass(n: pypsa.Network, costs: pd.DataFrame) -> None:
                 efficiency4=costs.at["solid biomass", "CO2 intensity"]
                 * costs.at["biomass CHP capture", "capture_rate"],
                 lifetime=costs.at[key, "lifetime"],
+                sector="biomass",
             )
 
 
@@ -1563,6 +1575,7 @@ def add_aviation(
         bus="co2 atmosphere",
         carrier="oil emissions",
         p_set=-co2,
+        sector="aviation",
     )
 
 
@@ -1762,6 +1775,7 @@ def add_shipping(
             bus="co2 atmosphere",
             carrier="shipping oil emissions",
             p_set=-co2,
+            sector="shipping",
         )
 
     if "oil" not in n.buses.carrier.unique():
@@ -1870,6 +1884,7 @@ def add_industry(
             efficiency3=costs.at["solid biomass", "CO2 intensity"]
             * costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
+            sector="industry",
         )
 
     # CARRIER = FOSSIL GAS
@@ -1914,6 +1929,7 @@ def add_industry(
         p_nom_extendable=True,
         efficiency=1.0,
         efficiency2=costs.at["gas", "CO2 intensity"],
+        sector="industry",
     )
     if snakemake.params.sector_options["cc"]:
         n.madd(
@@ -1933,6 +1949,7 @@ def add_industry(
             efficiency3=costs.at["gas", "CO2 intensity"]
             * costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
+            sector="industry",
         )
 
     #################################################### CARRIER = HYDROGEN
@@ -1978,6 +1995,7 @@ def add_industry(
         bus="co2 atmosphere",
         carrier="industry oil emissions",
         p_set=-co2,
+        sector="industry",
     )
 
     co2 = (
@@ -1993,6 +2011,7 @@ def add_industry(
         bus="co2 atmosphere",
         carrier="industry coal emissions",
         p_set=-co2,
+        sector="industry",
     )
 
     ########################################################### CARRIER = HEAT
@@ -2061,6 +2080,7 @@ def add_industry(
         carrier="process emissions",
         p_nom_extendable=True,
         efficiency=1.0,
+        sector="industry",
     )
 
     # assume enough local waste heat for CC
@@ -2078,6 +2098,7 @@ def add_industry(
             efficiency=1 - costs.at["cement capture", "capture_rate"],
             efficiency2=costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
+            sector="industry",
         )
 
 
@@ -2484,6 +2505,7 @@ def add_land_transport(
             bus="co2 atmosphere",
             carrier="land transport oil emissions",
             p_set=-co2,
+            sector="land transport",
         )
 
 
@@ -2790,6 +2812,7 @@ def add_heat(
                 efficiency2=costs.at["gas", "CO2 intensity"],
                 capital_cost=costs.at[key, "efficiency"] * costs.at[key, "fixed"],
                 lifetime=costs.at[key, "lifetime"],
+                sector="heat",
             )
 
         if options["solar_thermal_collector"]["enable"]:
@@ -2826,6 +2849,7 @@ def add_heat(
                 / costs.at["central gas CHP", "c_b"],
                 efficiency3=costs.at["gas", "CO2 intensity"],
                 lifetime=costs.at["central gas CHP", "lifetime"],
+                sector="heat",
             )
             if snakemake.params.sector_options["cc"]:
                 n.madd(
@@ -2865,6 +2889,7 @@ def add_heat(
                     efficiency4=costs.at["gas", "CO2 intensity"]
                     * costs.at["biomass CHP capture", "capture_rate"],
                     lifetime=costs.at["central gas CHP", "lifetime"],
+                    sector="heat",
                 )
 
         if options["chp"] and options["micro_chp"] and name != "urban central":
@@ -2883,6 +2908,7 @@ def add_heat(
                 efficiency3=costs.at["gas", "CO2 intensity"],
                 capital_cost=costs.at["micro CHP", "fixed"],
                 lifetime=costs.at["micro CHP", "lifetime"],
+                sector="heat",
             )
 
 
@@ -3076,6 +3102,7 @@ def add_services(
         bus="co2 atmosphere",
         carrier="gas emissions",
         p_set=-co2,
+        sector="services",
     )
 
 
@@ -3137,6 +3164,7 @@ def add_agriculture(
         bus="co2 atmosphere",
         carrier="oil emissions",
         p_set=-co2,
+        secctor="agriculture",
     )
 
 
@@ -3291,6 +3319,7 @@ def add_residential(
         bus="co2 atmosphere",
         carrier="oil emissions",
         p_set=-co2,
+        sector="residential",
     )
     n.madd(
         "Load",
@@ -3318,6 +3347,7 @@ def add_residential(
         bus="co2 atmosphere",
         carrier="gas emissions",
         p_set=-co2,
+        sector="residential",
     )
 
     for country in countries:
