@@ -1576,7 +1576,8 @@ def add_aviation(
         carrier="oil emissions",
         p_set=-co2,
     )
-    n.loads.loc["aviation oil emissions", "sector"] = "aviation"
+    n.loads.loc["aviation oil emissions", "sector"] = "transport"
+    n.loads.loc["aviation oil emissions", "subsector"] = "non_road_aviation"
 
 
 def h2_hc_conversions(n: pypsa.Network, costs: pd.DataFrame) -> None:
@@ -1776,7 +1777,8 @@ def add_shipping(
             carrier="shipping oil emissions",
             p_set=-co2,
         )
-        n.loads.loc["shipping oil emissions", "sector"] = "shipping"
+        n.loads.loc["shipping oil emissions", "sector"] = "transport"
+        n.loads.loc["shipping oil emissions", "subsector"] = "non_road_shipping"
 
     if "oil" not in n.buses.carrier.unique():
         n.madd("Bus", spatial.oil.nodes, location=spatial.oil.locations, carrier="oil")
@@ -2506,7 +2508,8 @@ def add_land_transport(
             carrier="land transport oil emissions",
             p_set=-co2,
         )
-        n.loads.loc["land transport oil emissions", "sector"] = "land_transport"
+        n.loads.loc["land transport oil emissions", "sector"] = "transport"
+        n.loads.loc["land transport oil emissions", "subsector"] = "road_transport"
 
 
 def create_nodes_for_heat_sector(district_heat_share: pd.DataFrame) -> tuple:
