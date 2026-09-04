@@ -58,9 +58,9 @@ Description
     for all ``scenario`` s in the configuration file
     the rule :mod:`prepare_network`.
 """
-from logging import config
 import os
 import re
+from logging import config
 from zipfile import ZipFile
 
 import country_converter as cc
