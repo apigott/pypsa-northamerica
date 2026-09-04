@@ -1869,6 +1869,9 @@ def add_industry(
         p_nom_extendable=True,
         efficiency=1.0,
     )
+    # TODO: Preserve industry subsector detail from build_industry_demand.py
+    # through to this stage and replace empty subsector metadata with normalized
+    # industry subsectors.
     if snakemake.params.sector_options["cc"]:
         n.madd(
             "Link",
@@ -1888,6 +1891,7 @@ def add_industry(
             * costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
             sector="industry",
+            subsector="",
         )
 
     # CARRIER = FOSSIL GAS
@@ -1933,6 +1937,7 @@ def add_industry(
         efficiency=1.0,
         efficiency2=costs.at["gas", "CO2 intensity"],
         sector="industry",
+        subsector="",
     )
     if snakemake.params.sector_options["cc"]:
         n.madd(
@@ -1953,6 +1958,7 @@ def add_industry(
             * costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
             sector="industry",
+            subsector="",
         )
 
     #################################################### CARRIER = HYDROGEN
@@ -2000,6 +2006,7 @@ def add_industry(
         p_set=-co2,
     )
     n.loads.loc["industry oil emissions", "sector"] = "industry"
+    n.loads.loc["industry oil emissions", "subsector"] = ""
 
     co2 = (
         industrial_demand["coal"].sum()
@@ -2016,6 +2023,7 @@ def add_industry(
         p_set=-co2,
     )
     n.loads.loc["industry coal emissions", "sector"] = "industry"
+    n.loads.loc["industry coal emissions", "subsector"] = ""
 
     ########################################################### CARRIER = HEAT
     # TODO simplify bus expression
@@ -2085,6 +2093,7 @@ def add_industry(
         efficiency=1.0,
     )
     n.links.loc["process emissions", "sector"] = "industry"
+    n.links.loc["process emissions", "subsector"] = ""
 
     # assume enough local waste heat for CC
     if snakemake.params.sector_options["cc"]:
@@ -2102,6 +2111,7 @@ def add_industry(
             efficiency2=costs.at["cement capture", "capture_rate"],
             lifetime=costs.at["cement capture", "lifetime"],
             sector="industry",
+            subsector="",
         )
 
 
@@ -3107,6 +3117,7 @@ def add_services(
         p_set=-co2,
     )
     n.loads.loc["services oil emissions", "sector"] = "services"
+    n.loads.loc["services oil emissions", "subsector"] = ""
 
     p_set_gas = p_set_from_scaling(
         "services gas", profile_residential, energy_totals, temporal_resolution
@@ -3132,6 +3143,7 @@ def add_services(
         p_set=-co2,
     )
     n.loads.loc["services gas emissions", "sector"] = "services"
+    n.loads.loc["services gas emissions", "subsector"] = ""
 
 
 def add_agriculture(
@@ -3194,6 +3206,7 @@ def add_agriculture(
         p_set=-co2,
     )
     n.loads.loc["agriculture oil emissions", "sector"] = "agriculture"
+    n.loads.loc["agriculture oil emissions", "subsector"] = ""
 
 
 def normalize_by_country(df, droplevel=False):
@@ -3349,6 +3362,7 @@ def add_residential(
         p_set=-co2,
     )
     n.loads.loc["residential oil emissions", "sector"] = "residential"
+    n.loads.loc["residential oil emissions", "subsector"] = ""
     n.madd(
         "Load",
         spatial.nodes,
@@ -3377,6 +3391,7 @@ def add_residential(
         p_set=-co2,
     )
     n.loads.loc["residential gas emissions", "sector"] = "residential"
+    n.loads.loc["residential gas emissions", "subsector"] = ""
 
     for country in countries:
         rem_heat_demand = (
