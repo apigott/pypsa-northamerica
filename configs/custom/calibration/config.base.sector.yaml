@@ -62,7 +62,6 @@ co2:
   base: 4.413e+9 # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
   emission_price: 0. # [currency/tCO2]; active via Ep wildcard
   sector_policy:
-    enable: true
     policy_file: "configs/policy/co2_sector_limits.csv"
 
 
