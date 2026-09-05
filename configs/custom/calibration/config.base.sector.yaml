@@ -61,8 +61,6 @@ co2:
   limit: 4.633e+9 # base * 1.1 for calibration purposes
   base: 4.413e+9 # power sector emissions US 2023 https://www.iea.org/countries/united-states/emissions
   emission_price: 0. # [currency/tCO2]; active via Ep wildcard
-  sector_policy:
-    policy_file: "configs/policy/co2_sector_limits.csv"
 
 
 # =================== SECTOR OPTIONS ===================
