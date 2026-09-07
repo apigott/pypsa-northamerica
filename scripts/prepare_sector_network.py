@@ -2622,7 +2622,10 @@ def add_land_transport(
         co2_by_node = (
             ice_share
             / ice_efficiency
-            * transport[spatial.nodes].mean()
+            * weighted_mean_by_snapshot(
+                transport[spatial.nodes],
+                n.snapshot_weightings.generators,
+            )
             * costs.at["oil", "CO2 intensity"]
         )
 
@@ -3220,7 +3223,13 @@ def add_services(
     )
 
     # TODO check with different snapshot settings
-    co2_by_node = p_set_oil.mean(axis=0) * costs.at["oil", "CO2 intensity"]
+    co2_by_node = (
+        weighted_mean_by_snapshot(
+            p_set_oil,
+            n.snapshot_weightings.generators,
+        )
+        * costs.at["oil", "CO2 intensity"]
+    )
 
     _add_country_emission_loads(
         n,
@@ -3244,7 +3253,13 @@ def add_services(
     )
 
     # TODO check with different snapshot settings
-    co2_by_node = p_set_gas.mean(axis=0) * costs.at["gas", "CO2 intensity"]
+    co2_by_node = (
+        weighted_mean_by_snapshot(
+            p_set_gas,
+            n.snapshot_weightings.generators,
+        )
+        * costs.at["gas", "CO2 intensity"]
+    )
 
     _add_country_emission_loads(
         n,
@@ -3348,6 +3363,19 @@ def normalize_and_group(df, multiindex=False):
     return group_by_node(
         normalize_by_country(df, droplevel=True), multiindex=multiindex
     )
+
+
+def weighted_mean_by_snapshot(
+    values: pd.DataFrame,
+    snapshot_weightings: pd.Series,
+) -> pd.Series:
+    """Return the snapshot-weighted mean of a time series."""
+    weights = snapshot_weightings.reindex(values.index)
+
+    if weights.isna().any():
+        raise ValueError("Missing snapshot weightings for time-series values.")
+
+    return values.mul(weights, axis=0).sum(axis=0) / weights.sum()
 
 
 def p_set_from_scaling(col, scaling, energy_totals, nhours):
@@ -3459,7 +3487,13 @@ def add_residential(
         p_set=p_set_oil,
     )
 
-    co2_by_node = p_set_oil.mean(axis=0) * costs.at["oil", "CO2 intensity"]
+    co2_by_node = (
+        weighted_mean_by_snapshot(
+            p_set_oil,
+            n.snapshot_weightings.generators,
+        )
+        * costs.at["oil", "CO2 intensity"]
+    )
 
     _add_country_emission_loads(
         n,
@@ -3486,7 +3520,13 @@ def add_residential(
         p_set=p_set_gas,
     )
 
-    co2_by_node = p_set_gas.mean(axis=0) * costs.at["gas", "CO2 intensity"]
+    co2_by_node = (
+        weighted_mean_by_snapshot(
+            p_set_gas,
+            n.snapshot_weightings.generators,
+        )
+        * costs.at["gas", "CO2 intensity"]
+    )
 
     _add_country_emission_loads(
         n,
