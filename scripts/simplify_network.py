@@ -8,6 +8,9 @@
 Lifts the electrical transmission network to a single configured voltage layer,
 removes dead ends of the network, and reduces multi-hop HVDC connections to a
 single link.
+Lifts the electrical transmission network to a single configured voltage layer,
+removes dead ends of the network, and reduces multi-hop HVDC connections to a
+single link.
 
 Relevant Settings
 -----------------
@@ -92,6 +95,7 @@ from _helpers import (
     configure_logging,
     create_logger,
     get_linetype_by_voltage_and_country,
+    get_linetype_by_voltage_and_country,
     nearest_shape,
     restore_base_carrier_names,
     update_config_dictionary,
@@ -111,6 +115,14 @@ sys.settrace
 logger = create_logger(__name__)
 
 
+def simplify_network_to_base_voltage(
+    n,
+    ac_types,
+    dc_types,
+    base_voltage,
+    use_country_specific_ac_types,
+    use_country_specific_dc_types,
+):
 def simplify_network_to_base_voltage(
     n,
     ac_types,
@@ -154,10 +166,10 @@ def simplify_network_to_base_voltage(
 
     line_countries = n.lines["bus0"].map(n.buses["country"])
 
-    ac_lines = n.lines["carrier"] == "AC"
-    dc_lines = n.lines["carrier"] == "DC"
+    ac_line_mask = n.lines["carrier"] == "AC"
+    dc_line_mask = n.lines["carrier"] == "DC"
 
-    n.lines.loc[ac_lines, "type"] = line_countries.loc[ac_lines].map(
+    n.lines.loc[ac_line_mask, "type"] = line_countries.loc[ac_line_mask].map(
         lambda country: get_linetype_by_voltage_and_country(
             base_voltage,
             country,
@@ -166,7 +178,7 @@ def simplify_network_to_base_voltage(
         )
     )
 
-    n.lines.loc[dc_lines, "type"] = line_countries.loc[dc_lines].map(
+    n.lines.loc[dc_line_mask, "type"] = line_countries.loc[dc_line_mask].map(
         lambda country: get_linetype_by_voltage_and_country(
             base_voltage,
             country,
@@ -177,12 +189,12 @@ def simplify_network_to_base_voltage(
 
     n.lines["v_nom"] = base_voltage
     n.lines["i_nom"] = n.lines["type"].map(n.line_types["i_nom"])
+    n.lines["i_nom"] = n.lines["type"].map(n.line_types["i_nom"])
     # Note: s_nom is set in base_network
     n.lines["num_parallel"] = n.lines.eval("s_nom / (sqrt(3) * v_nom * i_nom)")
 
     # Re-define s_nom for DC lines
-    is_dc_carrier = n.lines["carrier"] == "DC"
-    n.lines.loc[is_dc_carrier, "num_parallel"] = n.lines.loc[is_dc_carrier].eval(
+    n.lines.loc[dc_line_mask, "num_parallel"] = n.lines.loc[dc_line_mask].eval(
         "s_nom / (v_nom * i_nom)"
     )
 
@@ -1144,6 +1156,14 @@ if __name__ == "__main__":
         },
     )
 
+    n, trafo_map = simplify_network_to_base_voltage(
+        n,
+        ac_types,
+        dc_types,
+        base_voltage,
+        use_country_specific_ac_types,
+        use_country_specific_dc_types,
+    )
     n, trafo_map = simplify_network_to_base_voltage(
         n,
         ac_types,

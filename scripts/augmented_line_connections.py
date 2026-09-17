@@ -158,9 +158,6 @@ if __name__ == "__main__":
         False,
     )
 
-    use_country_specific_ac_types = use_country_specific_types
-    use_country_specific_dc_types = use_country_specific_types
-
     new_kedge_lines["country"] = new_kedge_lines["bus0"].map(n.buses["country"])
     new_kedge_lines["v_nom"] = new_kedge_lines["bus0"].map(n.buses["v_nom"])
     new_kedge_lines["type"] = new_kedge_lines.apply(
@@ -168,7 +165,7 @@ if __name__ == "__main__":
             line.v_nom,
             line.country,
             ac_linetypes,
-            use_country_specific_ac_types,
+            use_country_specific_types,
         ),
         axis=1,
     )
@@ -180,7 +177,7 @@ if __name__ == "__main__":
             line.v_nom,
             line.country,
             dc_linetypes,
-            use_country_specific_dc_types,
+            use_country_specific_types,
         ),
         axis=1,
     )

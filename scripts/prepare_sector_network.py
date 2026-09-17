@@ -2626,7 +2626,7 @@ def add_land_transport(
         co2_by_node = (
             ice_share
             / ice_efficiency
-            * transport[spatial.nodes]
+            * transport[spatial.nodes].sum(axis=1)
             * costs.at["oil", "CO2 intensity"]
         )
 
@@ -3223,7 +3223,8 @@ def add_services(
         p_set=p_set_oil,
     )
 
-    co2_by_node = p_set_oil * costs.at["oil", "CO2 intensity"]
+    # TODO check with different snapshot settings
+    co2 = p_set_oil.sum(axis=1).mean() * costs.at["oil", "CO2 intensity"]
 
     _add_country_emission_loads(
         n,
@@ -3246,7 +3247,8 @@ def add_services(
         p_set=p_set_gas,
     )
 
-    co2_by_node = p_set_gas * costs.at["gas", "CO2 intensity"]
+    # TODO check with different snapshot settings
+    co2 = p_set_gas.sum(axis=1).mean() * costs.at["gas", "CO2 intensity"]
 
     _add_country_emission_loads(
         n,
@@ -3461,7 +3463,7 @@ def add_residential(
         p_set=p_set_oil,
     )
 
-    co2_by_node = p_set_oil * costs.at["oil", "CO2 intensity"]
+    co2 = p_set_oil.mean().sum() * costs.at["oil", "CO2 intensity"]
 
     _add_country_emission_loads(
         n,
@@ -3488,7 +3490,7 @@ def add_residential(
         p_set=p_set_gas,
     )
 
-    co2_by_node = p_set_gas * costs.at["gas", "CO2 intensity"]
+    co2 = p_set_gas.mean().sum() * costs.at["gas", "CO2 intensity"]
 
     _add_country_emission_loads(
         n,
