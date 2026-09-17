@@ -114,15 +114,6 @@ sys.settrace
 
 logger = create_logger(__name__)
 
-
-def simplify_network_to_base_voltage(
-    n,
-    ac_types,
-    dc_types,
-    base_voltage,
-    use_country_specific_ac_types,
-    use_country_specific_dc_types,
-):
 def simplify_network_to_base_voltage(
     n,
     ac_types,
