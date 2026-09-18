@@ -1900,7 +1900,7 @@ rule make_sector_summary:
             **config["scenario"],
             **config["costs"],
         ),
-        costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+        costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
         plots=expand(
             RESDIR
             + "maps/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}-costs-all_{planning_horizons}_{discountrate}.pdf",
@@ -2142,7 +2142,7 @@ rule build_industry_demand:  #default data
         + "demand/base_industry_totals_{planning_horizons}.csv",
         industrial_database="resources/industrial_database.csv",
         ammonia_production="resources/ammonia_production.csv",
-        costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+        costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
         industry_growth_cagr="data/demand/industry_growth_cagr.csv",
     output:
         industrial_energy_demand_per_node="resources/"
@@ -2260,7 +2260,7 @@ if config["foresight"] == "myopic":
             # clustered_pop_layout="resources/"
             # + SECDIR
             # + "population_shares/pop_layout_elec_s{simpl}_{clusters}_{planning_horizons}.csv",
-            costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
         output:
             RESDIR
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}.nc",
@@ -2321,7 +2321,7 @@ if config["foresight"] == "myopic":
             network=RESDIR
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_export.nc",
             network_p=solved_previous_horizon,  #solved network at previous time step
-            costs=("resources/" + RDIR + f"costs_{config['costs']['year']}_sec.csv"),
+            costs="resources/" + RDIR + "costs_{planning_horizons}_sec.csv",
             cop_soil_total="resources/"
             + SECDIR
             + "cops/cop_soil_total_elec_s{simpl}_{clusters}_{planning_horizons}.nc",
